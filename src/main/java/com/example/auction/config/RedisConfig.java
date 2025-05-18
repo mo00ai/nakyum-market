@@ -1,0 +1,92 @@
+package com.example.auction.config;
+
+import static com.example.auction.common.constant.RedisConst.DEFAULT;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+@Configuration
+@EnableCaching
+@RequiredArgsConstructor
+public class RedisConfig {
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
+	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+		RedisTemplate<String, Object> template = new RedisTemplate<>();
+		template.setConnectionFactory(connectionFactory);
+
+		// Redis용 ObjectMapper 설정
+		ObjectMapper redisObjectMapper = createRedisObjectMapper();
+
+		// 직렬화 설정
+		GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+		StringRedisSerializer stringSerializer = new StringRedisSerializer();
+
+		template.setKeySerializer(stringSerializer);
+		template.setHashKeySerializer(stringSerializer);
+		template.setValueSerializer(jsonSerializer);
+		template.setHashValueSerializer(jsonSerializer);
+
+		return template;
+	}
+
+	@Bean
+	public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+		// Redis용 ObjectMapper 설정
+		ObjectMapper redisObjectMapper = createRedisObjectMapper();
+		GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+
+		RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jsonSerializer))
+			.disableCachingNullValues();
+
+		// 각 캐시별 TTL 설정
+		Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+		cacheConfigurations.put(DEFAULT, defaultConfig.entryTtl(Duration.ofMinutes(10)));    // 기본 유효기간 10분
+		// Todo 캐싱할 데이터의 key값을 자유롭게 설정해서 입력해 주세요.
+
+		return RedisCacheManager.builder(connectionFactory)
+			.cacheDefaults(defaultConfig.entryTtl(Duration.ofHours(1)))
+			.withInitialCacheConfigurations(cacheConfigurations)
+			.build();
+	}
+
+	private ObjectMapper createRedisObjectMapper() {
+		ObjectMapper redisObjectMapper = new ObjectMapper();
+		redisObjectMapper.registerModule(new JavaTimeModule());
+
+		// 타입 검증기 설정
+		PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+			.allowIfBaseType(Object.class)
+			.build();
+
+		redisObjectMapper.activateDefaultTyping(typeValidator, ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS);
+
+		return redisObjectMapper;
+	}
+}
