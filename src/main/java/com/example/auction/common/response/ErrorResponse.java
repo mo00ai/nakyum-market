@@ -3,11 +3,11 @@ package com.example.auction.common.response;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.auction.common.exception.BaseCode;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Builder;
 import lombok.Getter;
+
+import com.example.auction.common.exception.BaseCode;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Getter
 @Builder

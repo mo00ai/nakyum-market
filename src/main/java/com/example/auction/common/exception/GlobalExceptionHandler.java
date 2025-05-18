@@ -3,6 +3,11 @@ package com.example.auction.common.exception;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
+
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,13 +19,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import com.example.auction.common.response.CommonResponse;
 import com.example.auction.common.response.ErrorResponse;
-
-import jakarta.persistence.EntityNotFoundException;
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Builder
@@ -31,10 +31,10 @@ public class GlobalExceptionHandler {
 	 * Custom Exception 처리 - Service 계층에서 발생한 비즈니스 예외 처리
 	 */
 	@ExceptionHandler(CustomException.class)
-	protected ResponseEntity<CommonResponse<Void>> handleCustomException(CustomException e) {
-		log.error("CustomException: {}", e.getMessage());
+	protected ResponseEntity<CommonResponse<Void>> handleCustomException(CustomException ex) {
+		log.error("CustomException: {}", ex.getMessage());
 
-		BaseCode errorCode = e.getBaseCode();
+		BaseCode errorCode = ex.getBaseCode();
 
 		return new ResponseEntity<>(CommonResponse.error(errorCode), errorCode.getHttpStatus());
 		//return CommonResponse.error(errorCode);
@@ -46,9 +46,9 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<CommonResponse<Void>> handleMethodArgumentNotValidException(
-		MethodArgumentNotValidException e) {
-		log.error("MethodArgumentNotValidException: {}", e.getMessage());
-		List<ErrorResponse.FieldError> fieldErrors = processFieldErrors(e.getBindingResult());
+		MethodArgumentNotValidException ex) {
+		log.error("MethodArgumentNotValidException: {}", ex.getMessage());
+		List<ErrorResponse.FieldError> fieldErrors = processFieldErrors(ex.getBindingResult());
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.INVALID_INPUT_VALUE, fieldErrors),
 			ErrorCode.INVALID_INPUT_VALUE.getHttpStatus());
@@ -59,8 +59,8 @@ public class GlobalExceptionHandler {
 	 * Repository(JPA) 계층 예외 처리 - EntityNotFoundException 처리
 	 */
 	@ExceptionHandler(EntityNotFoundException.class)
-	protected ResponseEntity<CommonResponse<Void>> handleEntityNotFoundException(EntityNotFoundException e) {
-		log.error("EntityNotFoundException: {}", e.getMessage());
+	protected ResponseEntity<CommonResponse<Void>> handleEntityNotFoundException(EntityNotFoundException ex) {
+		log.error("EntityNotFoundException: {}", ex.getMessage());
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.ENTITY_NOT_FOUND),
 			ErrorCode.ENTITY_NOT_FOUND.getHttpStatus());
@@ -71,8 +71,8 @@ public class GlobalExceptionHandler {
 	 * (SQL 예외, Lock 획득 실패 등 DB 관련 예외)
 	 */
 	@ExceptionHandler(DataAccessException.class)
-	protected ResponseEntity<CommonResponse<Void>> handleDataAccessException(DataAccessException e) {
-		log.error("DataAccessException: {}", e.getMessage());
+	protected ResponseEntity<CommonResponse<Void>> handleDataAccessException(DataAccessException ex) {
+		log.error("DataAccessException: {}", ex.getMessage());
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.INTERNAL_SERVER_ERROR),
 			ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus());
@@ -83,8 +83,8 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	protected ResponseEntity<CommonResponse<Void>> handleHttpRequestMethodNotSupportedException(
-		HttpRequestMethodNotSupportedException e) {
-		log.error("HttpRequestMethodNotSupportedException: {}", e.getMessage());
+		HttpRequestMethodNotSupportedException ex) {
+		log.error("HttpRequestMethodNotSupportedException: {}", ex.getMessage());
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.METHOD_NOT_ALLOWED),
 			ErrorCode.METHOD_NOT_ALLOWED.getHttpStatus());
@@ -95,8 +95,8 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	protected ResponseEntity<CommonResponse<Void>> handleMethodArgumentTypeMismatchException(
-		MethodArgumentTypeMismatchException e) {
-		log.error("MethodArgumentTypeMismatchException: {}", e.getMessage());
+		MethodArgumentTypeMismatchException ex) {
+		log.error("MethodArgumentTypeMismatchException: {}", ex.getMessage());
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.INVALID_TYPE_VALUE),
 			ErrorCode.INVALID_TYPE_VALUE.getHttpStatus());
@@ -107,8 +107,8 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	protected ResponseEntity<CommonResponse<Void>> handleMissingServletRequestParameterException(
-		MissingServletRequestParameterException e) {
-		log.error("MissingServletRequestParameterException: {}", e.getMessage());
+		MissingServletRequestParameterException ex) {
+		log.error("MissingServletRequestParameterException: {}", ex.getMessage());
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.INVALID_INPUT_VALUE),
 			ErrorCode.INVALID_INPUT_VALUE.getHttpStatus());
@@ -119,8 +119,8 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	protected ResponseEntity<CommonResponse<Void>> handleHttpMessageNotReadableException(
-		HttpMessageNotReadableException e) {
-		log.error("HttpMessageNotReadableException: {}", e.getMessage());
+		HttpMessageNotReadableException ex) {
+		log.error("HttpMessageNotReadableException: {}", ex.getMessage());
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.INVALID_INPUT_VALUE),
 			ErrorCode.INVALID_INPUT_VALUE.getHttpStatus());
@@ -130,8 +130,8 @@ public class GlobalExceptionHandler {
 	 * 그 외 모든 예외 처리
 	 */
 	@ExceptionHandler(Exception.class)
-	protected ResponseEntity<CommonResponse<Void>> handleException(Exception e) {
-		log.error("Exception: {}", e.getMessage(), e);
+	protected ResponseEntity<CommonResponse<Void>> handleException(Exception ex) {
+		log.error("Exception: {}", ex.getMessage(), ex);
 
 		return new ResponseEntity<>(CommonResponse.error(ErrorCode.INTERNAL_SERVER_ERROR),
 			ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus());
