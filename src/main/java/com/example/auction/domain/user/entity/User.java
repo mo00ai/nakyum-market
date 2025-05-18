@@ -50,7 +50,6 @@ public class User extends BaseEntity {
 	@Column(length = 50)
 	private String address;
 
-	@Column(nullable = true)
 	private LocalDateTime deletedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
