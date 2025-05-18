@@ -35,38 +35,14 @@ public class Order {
 	}
 
 	/**
-	 * 정적 - 미주문
+	 * 정적
 	 *
 	 */
-	public static Order nonOrder(Long userId, int totalPrice) {
+	public static Order of(Long userId, int totalPrice) {
 		return Order.builder()
 			.userId(userId)
 			.totalPrice(totalPrice)
 			.orderStatus(OrderStatus.NON_ORDER)
-			.build();
-	}
-
-	/**
-	 * 정적 - 주문 완료
-	 *
-	 */
-	public static Order createOrder(Long userId, int totalPrice) {
-		return Order.builder()
-			.userId(userId)
-			.totalPrice(totalPrice)
-			.orderStatus(OrderStatus.ORDER)
-			.build();
-	}
-
-	/**
-	 * 정적 - 결제 완료
-	 *
-	 */
-	public static Order paidOrder(Long userId, int totalPrice) {
-		return Order.builder()
-			.userId(userId)
-			.totalPrice(totalPrice)
-			.orderStatus(OrderStatus.PAID)
 			.build();
 	}
 
