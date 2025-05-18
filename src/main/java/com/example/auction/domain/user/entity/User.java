@@ -17,13 +17,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="users")
+@Table(name="user")
 @Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User extends BaseEntity {
 
 	@Id
@@ -53,18 +57,19 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "image_id", nullable = false)
 	private Image image;
 
-	public User() {
-	}
-
 	@Builder
-	public User(String email, String password, String nickname, Role role, String address,
+	public static User of(String email, String password, String nickname, Role role, String address,
 		Image image) {
-		this.email = email;
-		this.password = password;
-		this.nickname = nickname;
-		this.role = role;
-		this.address = address;
-		this.image = image;
+
+		return User.builder()
+			.email(email)
+			.password(password)
+			.nickname(nickname)
+			.role(role)
+			.address(address)
+			.image(image)
+			.build();
+
 	}
 
 	public void delete() {
