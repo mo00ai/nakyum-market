@@ -45,7 +45,7 @@ public class User extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false,length = 20)
-	private Role role;
+	private UserRole userRole;
 
 	@Column(length = 50)
 	private String address;
@@ -57,14 +57,14 @@ public class User extends BaseEntity {
 	private Image image;
 
 	@Builder
-	public static User of(String email, String password, String nickname, Role role, String address,
+	public static User of(String email, String password, String nickname, UserRole userRole, String address,
 		Image image) {
 
 		return User.builder()
 			.email(email)
 			.password(password)
 			.nickname(nickname)
-			.role(role)
+			.userRole(userRole)
 			.address(address)
 			.image(image)
 			.build();
