@@ -31,7 +31,7 @@ public class OrderService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER')")
 	public OrderResponseDto orderSave(User loginUser, Long totalPrice, Long productId) {
 
 		User findUser = userRepository.findById(loginUser.getId())
