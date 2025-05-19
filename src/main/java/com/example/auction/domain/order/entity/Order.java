@@ -32,7 +32,7 @@ public class Order extends BaseCreateTimeEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", unique = true, nullable = false)
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	@Column(nullable = false)
