@@ -1,4 +1,4 @@
-package com.example.auction.domain.auth.service;
+package com.example.auction.domain.user.auth.service;
 
 import lombok.RequiredArgsConstructor;
 

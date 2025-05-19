@@ -1,4 +1,4 @@
-package com.example.auction.domain.auth.dto.response;
+package com.example.auction.domain.user.auth.dto.response;
 
 import lombok.Getter;
 

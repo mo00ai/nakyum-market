@@ -1,4 +1,4 @@
-package com.example.auction.domain.auth.security;
+package com.example.auction.domain.user.auth.security;
 
 import java.util.Collection;
 import java.util.Collections;
