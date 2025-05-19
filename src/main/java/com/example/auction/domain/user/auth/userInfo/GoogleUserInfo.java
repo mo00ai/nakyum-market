@@ -9,11 +9,12 @@ import com.example.auction.domain.user.entity.UserRole;
 /**
  * 구글 OAuth2 로그인으로부터 받은 사용자 정보를 파싱하는 클래스.
  */
-public class GoogleUserInfo implements OAuth2UserInfo{
+public class GoogleUserInfo implements OAuth2UserInfo {
 
-	private final Map<String,Object> attributes;
-	public GoogleUserInfo(Map<String,Object> attributes) {
-		this.attributes=attributes;
+	private final Map<String, Object> attributes;
+
+	public GoogleUserInfo(Map<String, Object> attributes) {
+		this.attributes = attributes;
 
 	}
 
@@ -24,21 +25,20 @@ public class GoogleUserInfo implements OAuth2UserInfo{
 
 	@Override
 	public String getName() {
-		return (String) attributes.get("name");
+		return (String)attributes.get("name");
 	}
 
 	@Override
-	public User toEntity(Image defaultImage){
+	public User toEntity(Image defaultImage) {
 		return User.of(
 			getEmail(),
 			null,
 			getName(),
-			UserRole.USER,
+			UserRole.ROLE_USER,
 			null,
 			defaultImage,
 			"GOOGLE"
 		);
 	}
-
 
 }

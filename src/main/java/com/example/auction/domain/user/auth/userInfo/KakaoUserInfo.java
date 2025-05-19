@@ -40,7 +40,7 @@ public class KakaoUserInfo implements OAuth2UserInfo {
 			getEmail(),
 			null,
 			getName(),
-			UserRole.USER,
+			UserRole.ROLE_USER,
 			null,
 			defaultImage,
 			"KAKAO"

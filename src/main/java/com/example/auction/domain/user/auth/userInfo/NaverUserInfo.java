@@ -17,26 +17,26 @@ public class NaverUserInfo implements OAuth2UserInfo {
 		this.attributes = (Map<String, Object>)attributes.get("response");
 	}
 
-		@Override
-		public String getEmail() {
-			return (String) attributes.get("email");
-		}
-
-		@Override
-		public String getName() {
-			return (String) attributes.get("name");
-		}
-
-		@Override
-		public User toEntity(Image defaultImage){
-			return User.of(
-				getEmail(),
-				null,
-				getName(),
-				UserRole.USER,
-				null,
-				defaultImage,
-				"NAVER"
-			);
-		}
+	@Override
+	public String getEmail() {
+		return (String)attributes.get("email");
 	}
+
+	@Override
+	public String getName() {
+		return (String)attributes.get("name");
+	}
+
+	@Override
+	public User toEntity(Image defaultImage) {
+		return User.of(
+			getEmail(),
+			null,
+			getName(),
+			UserRole.ROLE_USER,
+			null,
+			defaultImage,
+			"NAVER"
+		);
+	}
+}

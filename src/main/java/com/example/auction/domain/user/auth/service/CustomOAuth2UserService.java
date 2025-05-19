@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.user.auth.userInfo.OAuth2UserInfo;
 import com.example.auction.domain.user.auth.userInfo.OAuth2UserInfoFactory;
+import com.example.auction.domain.user.entity.CustomOAuth2User;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 import com.example.auction.util.JwtUtil;
@@ -46,7 +47,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		String jwtToken = jwtUtil.createToken(user.getId(), user.getEmail(), user.getNickname(), user.getUserRole());
 
-		return new CustomOAuth2USer(user,,oAuth2User.getAttributes(),"email",jwtToken)
+		return new CustomOAuth2User(user,oAuth2User.getAttributes(),"email",jwtToken)
 	}
 
 }
