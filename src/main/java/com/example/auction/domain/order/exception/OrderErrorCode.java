@@ -1,4 +1,4 @@
-package com.example.auction.domain.product.exception;
+package com.example.auction.domain.order.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +8,9 @@ import com.example.auction.common.exception.BaseCode;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProductErrorCode implements BaseCode {
+public enum OrderErrorCode implements BaseCode {
 
-	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "요청하신 상품을 찾을 수 없습니다."),
-
+	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "O001", "주문한 상품이 없습니다."),
 	;
 
 	private final HttpStatus httpStatus;
