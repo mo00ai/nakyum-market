@@ -26,7 +26,7 @@ public class ProductResponseDto {
 
 	private Long finalPrice;
 
-	private LocalDate createdAt;
+	private String createdAt;
 
 	private LocalDate endedAt;
 
@@ -41,7 +41,7 @@ public class ProductResponseDto {
 			.startPrice(product.getStartPrice())
 			.unitPrice(product.getUnitPrice())
 			.finalPrice(product.getFinalPrice())
-			.createdAt(product.getCreateAt().toLocalDate())
+			.createdAt(product.getCreateAt().toLocalDate().toString())
 			.endedAt(product.getEndedAt())
 			.count(product.getCount())
 			.build();
@@ -50,7 +50,7 @@ public class ProductResponseDto {
 
 	@QueryProjection
 	public ProductResponseDto(Long id, String imgUrl, String name, String description, Long startPrice, Long unitPrice,
-		Long finalPrice, LocalDate createdAt, LocalDate endedAt, int count) {
+		Long finalPrice, String createdAt, LocalDate endedAt, int count) {
 		this.id = id;
 		this.imgUrl = imgUrl;
 		this.name = name;

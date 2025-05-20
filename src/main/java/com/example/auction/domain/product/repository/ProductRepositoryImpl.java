@@ -1,6 +1,5 @@
 package com.example.auction.domain.product.repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -39,7 +38,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				product.startPrice,
 				product.unitPrice,
 				product.finalPrice,
-				Expressions.dateTemplate(LocalDate.class, "cast({0} as date)", product.createAt),
+				Expressions.dateTemplate(String.class, "DATE_FORMAT({0}, {1})", product.createAt, "%Y-%m-%d"),
 				product.endedAt,
 				product.count
 			))
