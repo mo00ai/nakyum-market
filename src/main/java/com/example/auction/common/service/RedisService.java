@@ -20,6 +20,11 @@ public class RedisService {
 	 * 사용자가 필요한 set 메서드가 더 있다면 직접 만들어서 사용하세요
 	 */
 
+	// key, String
+	public void setKeyValue(String key, Object value) {
+		redisTemplate.opsForValue().set(key, value);
+	}
+
 	// key, String, Duration
 	public void setKeyValue(String key, String value, Duration validityTime) {
 		redisTemplate.opsForValue().set(key, value, validityTime);
@@ -27,6 +32,10 @@ public class RedisService {
 
 	// key, Object, Duration
 	public void setKeyValue(String key, Object value, Duration validityTime) {
+		redisTemplate.opsForValue().set(key, value, validityTime);
+	}
+	// key, Long, Duration
+	public void setKeyValue(String key, Long value, Duration validityTime) {
 		redisTemplate.opsForValue().set(key, value, validityTime);
 	}
 
@@ -43,6 +52,22 @@ public class RedisService {
 		return redisTemplate.opsForValue().get(key);
 	}
 
+	public String getKeyStringValue(String key){
+		Object object = redisTemplate.opsForValue().get(key);
+		if (object instanceof String ) {
+			return (String) object;
+		}
+		return null;
+	}
+
+	public Long getKeyLongValue(String key){
+		Object object = redisTemplate.opsForValue().get(key);
+		if (object instanceof Number) {
+			return ((Number) object).longValue();
+		}
+		return null;
+	}
+
 	public List<?> getKeyValues(String key) {
 		Object object = redisTemplate.opsForValue().get(key);
 
@@ -51,6 +76,10 @@ public class RedisService {
 		}
 
 		return Collections.emptyList();
+	}
+
+	public Long incrementValue(String key){
+		return redisTemplate.opsForValue().increment(key);
 	}
 
 	public void deleteKeyValue(String key) {

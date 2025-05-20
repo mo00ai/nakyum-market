@@ -24,7 +24,7 @@ public class DipsController {
     private final DipsService dipsService;
 
     @PostMapping("/{productId}")
-    public CommonResponse<String> save(
+    public CommonResponse<Boolean> save(
         @AuthenticationPrincipal UserDetails userDetails,
         @PathVariable Long productId)
          {
