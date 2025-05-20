@@ -37,7 +37,7 @@ public class DipsService {
     @Transactional
     public boolean save(UserDetails userDetails, Long productId) {
 
-        User user = finnByUser(userDetails.getUsername());
+        User user = findByUserOrNotFoundThrow(userDetails.getUsername());
         // 유저 별 고유 ID
         String lockKey = "lock:" + user.getId();
         String countKey = "count:" + user.getId();
@@ -78,7 +78,7 @@ public class DipsService {
 
 
     public List<DipsFindResponseDto> findDips(UserDetails userDetails) {
-        User user = finnByUser(userDetails.getUsername());
+        User user = findByUserOrNotFoundThrow(userDetails.getUsername());
         return dipsRepository.findDipsByUserIdOrElseThrow(user.getId())
             .stream()
             .map(DipsFindResponseDto::toDto)
@@ -86,7 +86,7 @@ public class DipsService {
             ;
     }
 
-    private User finnByUser(String userName) {
+    private User findByUserOrNotFoundThrow(String userName) {
         return userRepository.findByEmail(userName).orElseThrow(() ->
             new CustomException(NOT_FOUND_USER, NOT_FOUND_USER.getMessage()));
     }
