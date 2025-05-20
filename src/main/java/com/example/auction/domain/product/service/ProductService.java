@@ -1,9 +1,13 @@
 package com.example.auction.domain.product.service;
 
-import static com.example.auction.domain.product.exception.ProductErrorCode.*;
-import static com.example.auction.domain.user.exception.ErrorCode.*;
+import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
+import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
 import java.util.List;
+
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -25,9 +29,7 @@ import com.example.auction.domain.product.entity.Product;
 import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import com.example.auction.domain.wonitem.service.WonItemService;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +38,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 	private final ImageService imageService;
+	private final WonItemService wonItemService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -117,11 +120,12 @@ public class ProductService {
 	//Long id = product의 id
 	//finalPrice = 낙찰가
 	@Transactional
-	public void updateFinalPrice(Long id, Long finalPrice) {
+	public void updateFinalPrice(Long id, Long finalPrice, User user) {
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
+		wonItemService.createWonItem(product, user);
 
 	}
 
