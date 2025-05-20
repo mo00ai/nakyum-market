@@ -2,7 +2,8 @@ package com.example.auction.domain.dips.service;
 
 
 import static com.example.auction.common.exception.ErrorCode.DB_LOCK_CONFLICT;
-import static com.example.auction.common.exception.ErrorCode.USER_NOT_FOUND;
+import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
+import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.service.RedisService;
@@ -44,7 +45,7 @@ public class DipsService {
         if(redisService.getKeyValue(lockKey) != null) throw new CustomException(DB_LOCK_CONFLICT,DB_LOCK_CONFLICT.getMessage());
 
         Product product = productRepository.findById(productId).orElseThrow(() ->
-            new RuntimeException("Product not found"));
+            new CustomException(PRODUCT_NOT_FOUND));
 
         boolean isClick = dipsRepository.findByUserIdAndProductId(user.getId(), productId)
             .isPresent();
@@ -87,7 +88,7 @@ public class DipsService {
 
     private User finnByUser(String userName) {
         return userRepository.findByEmail(userName).orElseThrow(() ->
-            new CustomException(USER_NOT_FOUND, USER_NOT_FOUND.getMessage()));
+            new CustomException(NOT_FOUND_USER, NOT_FOUND_USER.getMessage()));
     }
 
 }

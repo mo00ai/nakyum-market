@@ -1,6 +1,8 @@
 package com.example.auction.domain.dips.repository;
 
-import static com.example.auction.common.exception.ErrorCode.NOT_FOUND_DIPS;
+
+
+import static com.example.auction.domain.dips.exception.DipsErrorCode.NOT_FOUND_DIPS;
 
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.domain.dips.entity.Dips;
@@ -23,7 +25,7 @@ public interface DipsRepository extends JpaRepository<Dips, Long> {
     default List<Dips> findDipsByUserIdOrElseThrow(Long id) {
         List<Dips> list = findDipsByUserId(id);
         if (list.isEmpty()) {
-            throw new RuntimeException("Dips not found");
+            throw new CustomException(NOT_FOUND_DIPS, NOT_FOUND_DIPS.getMessage());
         }
         return list;
     }
