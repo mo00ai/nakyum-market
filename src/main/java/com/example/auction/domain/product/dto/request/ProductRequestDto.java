@@ -33,7 +33,7 @@ public class ProductRequestDto {
 
 	@NotNull(message = "경매 시작일은 필수입니다.")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-	private LocalDate startedAt;
+	private LocalDate createdAt;
 
 	@NotNull(message = "경매 종료일은 필수입니다.")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

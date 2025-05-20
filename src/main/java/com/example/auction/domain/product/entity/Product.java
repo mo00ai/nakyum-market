@@ -52,9 +52,6 @@ public class Product extends BaseEntity {
 	private Long finalPrice;
 
 	@Column(nullable = false)
-	private LocalDate startedAt;
-
-	@Column(nullable = false)
 	private LocalDate endedAt;
 
 	private int count;
@@ -66,14 +63,12 @@ public class Product extends BaseEntity {
 	@JoinColumn(name = "image_id", nullable = false)
 	private Image image;
 
-	public static Product of(String name, String description, Long startPrice, Long unitPrice,
-		LocalDate startedAt, LocalDate endedAt) {
+	public static Product of(String name, String description, Long startPrice, Long unitPrice, LocalDate endedAt) {
 		return Product.builder()
 			.name(name)
 			.description(description)
 			.startPrice(startPrice)
 			.unitPrice(unitPrice)
-			.startedAt(startedAt)
 			.endedAt(endedAt)
 			.count(0)
 			.build();

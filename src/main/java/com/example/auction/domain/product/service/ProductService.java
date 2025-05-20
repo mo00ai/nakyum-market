@@ -45,7 +45,7 @@ public class ProductService {
 		User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
 		Product product = Product.of(dto.getName(), dto.getDescription(), dto.getStartPrice(), dto.getUnitPrice(),
-			dto.getStartedAt(), dto.getEndedAt());
+			dto.getEndedAt());
 
 		Product savedProduct = productRepository.save(product);
 

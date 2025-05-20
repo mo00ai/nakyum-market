@@ -1,5 +1,6 @@
 package com.example.auction.domain.product.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -38,14 +39,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				product.startPrice,
 				product.unitPrice,
 				product.finalPrice,
-				product.startedAt,
+				Expressions.dateTemplate(LocalDate.class, "cast({0} as date)", product.createAt),
 				product.endedAt,
 				product.count
 			))
 			.from(product)
 			.join(product.image, image)
 			.where(
-
+				nameLike(keyword)
 			)
 			.orderBy(product.createAt.desc())
 			.offset(pageable.getOffset())
