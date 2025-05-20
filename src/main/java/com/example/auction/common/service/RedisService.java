@@ -19,9 +19,6 @@ public class RedisService {
 	/**
 	 * 사용자가 필요한 set 메서드가 더 있다면 직접 만들어서 사용하세요
 	 */
-	public boolean isExpire(String key, Duration validityTime){
-		redisTemplate.expire(key, validityTime);
-	}
 
 	// key, String
 	public void setKeyValue(String key, Object value) {
