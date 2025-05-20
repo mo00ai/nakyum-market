@@ -2,6 +2,8 @@ package com.example.auction.domain.product.dto.response;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +29,20 @@ public class PageResponseDto {
 
 	private final int endPage; //페이징 범위 (현재 페이지 기준 +2)
 
-	public static PageResponseDto from(List<ProductResponseDto> productList, int nowPage, int pageSize, int totalPages,
-		boolean hasNext, boolean hasPrevious, int startPage, int endPage) {
+	public static PageResponseDto from(Page<ProductResponseDto> allPage) {
+
+		int nowPage = allPage.getNumber() + 1;
+		int pageRange = 5;
+		int totalPages = allPage.getTotalPages();
+		int startPage = ((nowPage - 1) / pageRange) * pageRange + 1;
+		int endPage = Math.min(startPage + pageRange - 1, totalPages);
+		boolean hasPrevious = startPage > 1;
+		boolean hasNext = endPage < totalPages;
 
 		return PageResponseDto.builder()
-			.productList(productList)
+			.productList(allPage.getContent())
 			.nowPage(nowPage)
-			.pageSize(pageSize)
+			.pageSize(allPage.getSize())
 			.totalPages(totalPages)
 			.hasNext(hasNext)
 			.hasPrevious(hasPrevious)

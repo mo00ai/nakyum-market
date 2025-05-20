@@ -81,17 +81,7 @@ public class ProductService {
 
 		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
 
-		//사용자에게 반환할 페이지 객체 정보
-		int nowPage = allPage.getNumber() + 1; // 1부터 시작
-		int pageRange = 5;
-		int totalPages = allPage.getTotalPages();
-		int startPage = ((nowPage - 1) / pageRange) * pageRange + 1;
-		int endPage = Math.min(startPage + pageRange - 1, totalPages);
-		boolean hasPrevious = startPage > 1;
-		boolean hasNext = endPage < totalPages;
-
-		return PageResponseDto.from(allPage.getContent(), nowPage, allPage.getSize(), totalPages, hasNext, hasPrevious,
-			startPage, endPage);
+		return PageResponseDto.from(allPage);
 
 	}
 
