@@ -2,14 +2,15 @@ package com.example.auction.domain.dips.service;
 
 
 import static com.example.auction.common.exception.ErrorCode.DB_LOCK_CONFLICT;
+import static com.example.auction.common.exception.ErrorCode.USER_NOT_FOUND;
 
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.dips.dto.response.DipsFindResponseDto;
 import com.example.auction.domain.dips.entity.Dips;
 import com.example.auction.domain.dips.repository.DipsRepository;
-import com.example.auction.domain.dips.repository.ProductRepository;
 import com.example.auction.domain.product.entity.Product;
+import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 import java.time.Duration;
@@ -24,12 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class DipsService {
 
     private final RedisService redisService;
-
     private final DipsRepository dipsRepository;
-
     private final UserRepository userRepository;
-
     private final ProductRepository productRepository;
+
+    private final int MAX_COUNT = 5;
+    private final int COUNT_TIME = 5;
+    private final int LOCK_TIME = 10;
 
     @Transactional
     public boolean save(UserDetails userDetails, Long productId) {
@@ -41,8 +43,7 @@ public class DipsService {
         // DB 락 체크
         if(redisService.getKeyValue(lockKey) != null) throw new CustomException(DB_LOCK_CONFLICT,DB_LOCK_CONFLICT.getMessage());
 
-        // 테스트용 코드
-        Product product = productRepository.findById(1L).orElseThrow(() ->
+        Product product = productRepository.findById(productId).orElseThrow(() ->
             new RuntimeException("Product not found"));
 
         boolean isClick = dipsRepository.findByUserIdAndProductId(user.getId(), productId)
@@ -51,16 +52,14 @@ public class DipsService {
         // 첫 클릭
         Long count = redisService.getKeyLongValue(countKey);
         if(count == null) {
-            redisService.setKeyValue(countKey, 1L, Duration.ofSeconds(20));
+            redisService.setKeyValue(countKey, 1L, Duration.ofSeconds(COUNT_TIME));
         }else{
             count = redisService.incrementValue(countKey); // count + 1
         }
 
         // 짧은 시간 내 5번 이상 클릭 시 DB 락
-        int max = 5;
-
-        if(count != null && count >= max){
-            redisService.setKeyValue(lockKey,user.getId(),Duration.ofSeconds(10));
+        if(count != null && count >= MAX_COUNT){
+            redisService.setKeyValue(lockKey,user.getId(),Duration.ofSeconds(LOCK_TIME));
         }
 
         if(isClick){
@@ -79,20 +78,16 @@ public class DipsService {
 
     public List<DipsFindResponseDto> findDips(UserDetails userDetails) {
         User user = finnByUser(userDetails.getUsername());
-        return findDipsByUserIdOrElseThrow(user.getId())
+        return dipsRepository.findDipsByUserIdOrElseThrow(user.getId())
             .stream()
             .map(DipsFindResponseDto::toDto)
             .toList()
             ;
     }
 
-
     private User finnByUser(String userName) {
         return userRepository.findByEmail(userName).orElseThrow(() ->
-            new RuntimeException("User not found"));
+            new CustomException(USER_NOT_FOUND, USER_NOT_FOUND.getMessage()));
     }
 
-    private List<Dips> findDipsByUserIdOrElseThrow(Long userId){
-        return dipsRepository.findDipsByUserIdOrElseThrow(userId);
-    }
 }

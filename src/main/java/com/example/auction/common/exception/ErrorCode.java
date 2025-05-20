@@ -17,8 +17,11 @@ public enum ErrorCode implements BaseCode {
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C004", "내부 서버 오류가 발생했습니다."),
 	INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, "C005", "유효하지 않은 타입의 값입니다."),
 
+	//USer
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "존재하지 않는 유저 입니다"),
+
 	//Dips
-	NOT_FOUND_DIPS(HttpStatus.CONFLICT, "L001", "찜 데이터가 존재하지 않습니다"),
+	NOT_FOUND_DIPS(HttpStatus.CONFLICT, "D001", "찜 데이터가 존재하지 않습니다"),
 
 	//DB
 	DB_LOCK_CONFLICT(HttpStatus.CONFLICT, "L002", "데이터베이스 락 상태로 요청을 처리할 수 없습니다."),

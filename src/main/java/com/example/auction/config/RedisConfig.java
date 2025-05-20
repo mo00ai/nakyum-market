@@ -8,6 +8,7 @@ import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,11 +33,6 @@ import lombok.RequiredArgsConstructor;
 @EnableCaching
 @RequiredArgsConstructor
 public class RedisConfig {
-
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
 
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
