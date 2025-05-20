@@ -63,7 +63,8 @@ public class Product extends BaseEntity {
 	@JoinColumn(name = "image_id", nullable = false)
 	private Image image;
 
-	public static Product of(String name, String description, Long startPrice, Long unitPrice, LocalDate endedAt) {
+	public static Product of(String name, String description, Long startPrice, Long unitPrice, LocalDate endedAt,
+		Image image) {
 		return Product.builder()
 			.name(name)
 			.description(description)
@@ -71,6 +72,7 @@ public class Product extends BaseEntity {
 			.unitPrice(unitPrice)
 			.endedAt(endedAt)
 			.count(0)
+			.image(image)
 			.build();
 	}
 
