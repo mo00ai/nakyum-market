@@ -83,7 +83,7 @@ public class ImageService {
 		//로컬 디렉토리 삭제
 		try {
 			Files.deleteIfExists(path);
-		} catch (IOException e) {
+		} catch (IOException ex) {
 			throw new ImageException(FAILED_DELETE_FILE);
 		}
 	}

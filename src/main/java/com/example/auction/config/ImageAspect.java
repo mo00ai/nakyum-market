@@ -97,7 +97,7 @@ public class ImageAspect {
 				//통로가 닫혀있거나
 				//파일이 날아갔거나 os 리소스 문제 등으로
 				//파일을 못 읽었을 때의 예외를 잡으려고
-			} catch (IOException e) {
+			} catch (IOException ex) {
 				throw new CustomException(ErrorCode.FILE_READ_ERROR);
 			}
 		}
