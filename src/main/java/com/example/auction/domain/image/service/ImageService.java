@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.auction.common.exception.CustomException;
 import com.example.auction.domain.image.entity.Image;
-import com.example.auction.domain.image.exception.ImageException;
 import com.example.auction.domain.image.repository.ImageRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class ImageService {
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
-	@Transactional(rollbackFor = IOException.class)
+	@Transactional
 	public Image uploadFile(List<MultipartFile> fileList) {
 		List<Image> returnList = new ArrayList<>(); // 업로드한 사진 정보 담아서 리턴
 
@@ -50,7 +50,7 @@ public class ImageService {
 				Files.write(filePath, file.getBytes());
 			} catch (IOException ex) {
 				log.info("FAILED TO WRITE FILE PATH: {}", filePath.toString());
-				throw new ImageException(FAILED_WRITE_FILE);
+				throw new CustomException(FAILED_WRITE_FILE);
 			}
 
 			Image image = Image.of(originalFilename, uploadFilename, fileSize, fileExtension);
@@ -67,14 +67,14 @@ public class ImageService {
 	@Transactional(readOnly = true)
 	public Image getImage(Long imageId) {
 		return imageRepository.findById(imageId).orElseThrow(
-			() -> new ImageException(IMAGE_NOT_FOUND));
+			() -> new CustomException(IMAGE_NOT_FOUND));
 	}
 
 	// 파일 삭제
 	@Transactional(rollbackFor = IOException.class)
 	public void deleteImage(Long imageId) {
 		Image image = imageRepository.findById(imageId).orElseThrow(
-			() -> new ImageException(IMAGE_NOT_FOUND));
+			() -> new CustomException(IMAGE_NOT_FOUND));
 		Path path = Path.of(IMAGE_DIR + image.getUploadFileName());
 
 		//db삭제
@@ -84,7 +84,7 @@ public class ImageService {
 		try {
 			Files.deleteIfExists(path);
 		} catch (IOException ex) {
-			throw new ImageException(FAILED_DELETE_FILE);
+			throw new CustomException(FAILED_DELETE_FILE);
 		}
 	}
 

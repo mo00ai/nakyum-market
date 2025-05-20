@@ -22,7 +22,6 @@ import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
 import com.example.auction.domain.product.entity.Product;
-import com.example.auction.domain.product.exception.ProductException;
 import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
@@ -63,7 +62,7 @@ public class ProductService {
 	public ProductResponseDto findSingleProduct(Long id) {
 
 		Product product = productRepository.findByIdWithImage(id)
-			.orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND));
+			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.addCount();
 
@@ -100,7 +99,7 @@ public class ProductService {
 	public ProductResponseDto updateProduct(Long id, ProductUpdateRequestDto dto) {
 
 		Product product = productRepository.findByIdWithImage(id)
-			.orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND));
+			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateProduct(dto.getName(), dto.getDescription());
 
@@ -116,7 +115,7 @@ public class ProductService {
 	public ProductWithdrawResponseDto deleteProduct(Long id) {
 
 		Product product = productRepository.findByIdWithImage(id)
-			.orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND));
+			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.deleteProduct();
 
@@ -130,7 +129,7 @@ public class ProductService {
 	@Transactional
 	public void updateFinalPrice(Long id, Long finalPrice) {
 		Product product = productRepository.findByIdWithImage(id)
-			.orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND));
+			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
 
