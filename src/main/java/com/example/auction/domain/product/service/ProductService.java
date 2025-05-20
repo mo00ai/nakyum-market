@@ -59,7 +59,7 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductResponseDto findSingleProduct(Long id) {
+	public ProductResponseDto findProduct(Long id) {
 
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));

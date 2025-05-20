@@ -67,10 +67,10 @@ public class ProductController {
 	}
 
 	@GetMapping("/{id}")
-	public CommonResponse<ProductResponseDto> findSingleProduct(@AuthenticationPrincipal CustomUserDetails userDetail,
+	public CommonResponse<ProductResponseDto> findProduct(@AuthenticationPrincipal CustomUserDetails userDetail,
 		@PathVariable Long id) {
 
-		return CommonResponse.ok(productService.findSingleProduct(id));
+		return CommonResponse.ok(productService.findProduct(id));
 	}
 
 	//검색 v1 (아무것도 하지 않은 api)
