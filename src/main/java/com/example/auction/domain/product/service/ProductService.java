@@ -24,6 +24,7 @@ import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
 import com.example.auction.domain.product.entity.Product;
 import com.example.auction.domain.product.repository.ProductRepository;
+import com.example.auction.domain.searchLog.service.SearchLogService;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 
@@ -37,6 +38,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 	private final ImageService imageService;
+	private final SearchLogService searchLogService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -77,12 +79,15 @@ public class ProductService {
 		return dto;
 	}
 
+	@Transactional(readOnly = true)
 	public PageResponseDto findProducts(String keyword, int page) {
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);
 
 		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
+
+		searchLogService.saveSearchLog(keyword);
 
 		return PageResponseDto.from(allPage);
 

@@ -1,12 +1,10 @@
 package com.example.auction.config;
 
-import static com.example.auction.common.constant.RedisConst.DEFAULT;
+import static com.example.auction.common.constant.RedisConst.*;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.cache.annotation.EnableCaching;
@@ -54,8 +52,8 @@ public class RedisConfig {
 		return template;
 	}
 
-	@Bean
-	public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+	@Bean(name = "redisCacheManager")
+	public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
 		// Redis용 ObjectMapper 설정
 		ObjectMapper redisObjectMapper = createRedisObjectMapper();
 		GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
@@ -103,7 +101,7 @@ public class RedisConfig {
 	public ApplicationRunner redisNotifyEventConfigurer(RedisConnectionFactory factory) {
 		return args -> {
 			RedisConnection connection = factory.getConnection();
-			String config = (String) connection.getConfig("notify-keyspace-events").get("notify-keyspace-events");
+			String config = (String)connection.getConfig("notify-keyspace-events").get("notify-keyspace-events");
 
 			if (!config.contains("Ex")) {
 				connection.setConfig("notify-keyspace-events", config + "Ex");
