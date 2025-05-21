@@ -39,8 +39,8 @@ public class DipsService {
 
         User user = findByUserOrNotFoundThrow(userDetails.getUsername());
         // 유저 별 고유 ID
-        String lockKey = "lock:" + user.getId();
-        String countKey = "count:" + user.getId();
+        String lockKey = "dips:lock:" + user.getId();
+        String countKey = "dips:count" + user.getId();
         // DB 락 체크
         if(redisService.getKeyValue(lockKey) != null) throw new CustomException(DB_LOCK_CONFLICT,DB_LOCK_CONFLICT.getMessage());
 
