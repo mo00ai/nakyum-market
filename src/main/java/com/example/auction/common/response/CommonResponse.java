@@ -88,6 +88,18 @@ public class CommonResponse<T> {
 			.build();
 	}
 
+	public static <T> CommonResponse<T> error(HttpStatus status, String code, String message) {
+		return CommonResponse.<T>builder()
+			.timestamp(LocalDateTime.now())
+			.isError(true)
+			.status(status)
+			.code(code)
+			.message(message)
+			.data(null)
+			.errorResponse(null)
+			.build();
+	}
+
 	public static <T> CommonResponse<T> success(SuccessCode successCode) {
 		return CommonResponse.<T>builder()
 			.timestamp(LocalDateTime.now())

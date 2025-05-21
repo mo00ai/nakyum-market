@@ -2,7 +2,6 @@ package com.example.auction.domain.user.auth.service;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -10,13 +9,13 @@ import jakarta.mail.internet.MimeMessage;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.exception.ErrorCode;
+import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.user.auth.exception.AuthErrorCode;
 
 @Service
@@ -24,7 +23,7 @@ import com.example.auction.domain.user.auth.exception.AuthErrorCode;
 public class EmailService {
 
 	private final JavaMailSender mailSender;
-	private final RedisTemplate<String, String> redisTemplate;
+	private final RedisService redisService;
 
 	private static final int MAX_ATTEMPTS = 3;
 
@@ -33,7 +32,7 @@ public class EmailService {
 		String redisKey = "email:code:" + email;
 
 		// TTL 조회
-		Long ttl = redisTemplate.getExpire(redisKey, TimeUnit.SECONDS);
+		Long ttl = redisService.getExpire(redisKey);
 		if (ttl != null && ttl > 0) {
 			long minutes = ttl / 60;
 			long seconds = ttl % 60;
@@ -42,8 +41,7 @@ public class EmailService {
 		}
 
 		String code = generateCode();
-		redisTemplate.opsForValue()
-			.set("email:code:" + email, code, Duration.ofMinutes(5));        //인증번호 생성 후 redis에 저장(5분)
+		redisService.setKeyValue(redisKey, code, Duration.ofMinutes(5));    //인증번호 생성 후 redis에 저장(5분)
 
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
@@ -66,17 +64,17 @@ public class EmailService {
 		String codeKey = "email:code:" + email;
 		String failKey = "email:fail:" + email;
 
-		String saved = redisTemplate.opsForValue().get(codeKey);
+		Object saved = redisService.getKeyValue(codeKey);
 		if (saved == null)
 			return false;
 
 		// 실패 횟수 조회
-		String failCountStr = redisTemplate.opsForValue().get(failKey);
-		int failCount = failCountStr != null ? Integer.parseInt(failCountStr) : 0;
+		Long failCount = redisService.getKeyLongValue(failKey);
+		long safeFailCount = (failCount != null) ? failCount : 0L;
 
 		// 실패 횟수 초과 처리
-		if (failCount >= MAX_ATTEMPTS) {
-			Long ttl = redisTemplate.getExpire(failKey, TimeUnit.SECONDS);
+		if (safeFailCount >= MAX_ATTEMPTS) {
+			Long ttl = redisService.getExpire(failKey);
 			long minutes = ttl != null && ttl > 0 ? ttl / 60 : 0;
 			long seconds = ttl != null && ttl > 0 ? ttl % 60 : 0;
 
@@ -86,18 +84,18 @@ public class EmailService {
 
 		// 인증번호 일치
 		if (saved.equals(inputCode)) {
-			redisTemplate.delete(codeKey);
-			redisTemplate.delete(failKey);
+			redisService.deleteKeyValue(codeKey);
+			redisService.deleteKeyValue(failKey);
 			return true;
 		}
 
 		// 인증번호 불일치하면, 실패 카운트 증가
-		Long fail = redisTemplate.opsForValue().increment(failKey);
+		Long fail = redisService.incrementValue(failKey);
 		if (fail != null && fail == 1) {
 			// 실패 TTL = 인증번호 TTL
-			Long codeTtl = redisTemplate.getExpire(codeKey, TimeUnit.SECONDS);
+			Long codeTtl = redisService.getExpire(codeKey);
 			if (codeTtl != null && codeTtl > 0) {
-				redisTemplate.expire(failKey, codeTtl, TimeUnit.SECONDS);
+				redisService.setKeyValue(failKey, fail, Duration.ofSeconds(codeTtl));
 			}
 		}
 		return false; //아직 3회 미만 틀렸을때

@@ -36,8 +36,12 @@ public class GlobalExceptionHandler {
 		log.error("CustomException: {}", ex.getMessage());
 
 		BaseCode errorCode = ex.getBaseCode();
+		String message = ex.getDetailMessage() != null ? ex.getDetailMessage() : errorCode.getMessage();
 
-		return new ResponseEntity<>(CommonResponse.error(errorCode), errorCode.getHttpStatus());
+		return new ResponseEntity<>(
+			CommonResponse.error(errorCode.getHttpStatus(), errorCode.getCode(), message),
+			errorCode.getHttpStatus()
+		);
 	}
 
 	/**

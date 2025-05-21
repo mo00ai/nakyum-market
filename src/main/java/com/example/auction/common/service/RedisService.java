@@ -3,6 +3,7 @@ package com.example.auction.common.service;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class RedisService {
 	public void setKeyValue(String key, Object value, Duration validityTime) {
 		redisTemplate.opsForValue().set(key, value, validityTime);
 	}
+
 	// key, Long, Duration
 	public void setKeyValue(String key, Long value, Duration validityTime) {
 		redisTemplate.opsForValue().set(key, value, validityTime);
@@ -52,11 +54,10 @@ public class RedisService {
 		return redisTemplate.opsForValue().get(key);
 	}
 
-
-	public Long getKeyLongValue(String key){
+	public Long getKeyLongValue(String key) {
 		Object object = redisTemplate.opsForValue().get(key);
 		if (object instanceof Number) {
-			return ((Number) object).longValue();
+			return ((Number)object).longValue();
 		}
 		return null;
 	}
@@ -71,12 +72,16 @@ public class RedisService {
 		return Collections.emptyList();
 	}
 
-	public Long incrementValue(String key){
+	public Long incrementValue(String key) {
 		return redisTemplate.opsForValue().increment(key);
 	}
 
 	public void deleteKeyValue(String key) {
 		redisTemplate.delete(key);
+	}
+
+	public Long getExpire(String key) {
+		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
 	}
 
 }
