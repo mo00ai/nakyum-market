@@ -1,20 +1,21 @@
 package com.example.auction.config;
 
-import static com.example.auction.common.constant.RedisConst.DEFAULT;
+import static com.example.auction.common.constant.RedisConst.*;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
-
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -23,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableCaching
@@ -49,8 +52,8 @@ public class RedisConfig {
 		return template;
 	}
 
-	@Bean
-	public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+	@Bean(name = "redisCacheManager")
+	public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
 		// Redis용 ObjectMapper 설정
 		ObjectMapper redisObjectMapper = createRedisObjectMapper();
 		GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
@@ -83,5 +86,27 @@ public class RedisConfig {
 		redisObjectMapper.activateDefaultTyping(typeValidator, ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS);
 
 		return redisObjectMapper;
+	}
+
+	// redis event 리스너
+	@Bean
+	public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
+		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		return container;
+	}
+
+	//  로컬환경에서 Redis 서버 설정 편의상 스프링부트에서 강제로 설정
+	@Bean
+	public ApplicationRunner redisNotifyEventConfigurer(RedisConnectionFactory factory) {
+		return args -> {
+			RedisConnection connection = factory.getConnection();
+			String config = (String)connection.getConfig("notify-keyspace-events").get("notify-keyspace-events");
+
+			if (!config.contains("Ex")) {
+				connection.setConfig("notify-keyspace-events", config + "Ex");
+				System.out.println("[INFO] Redis notify-keyspace-events set to: " + config + "Ex");
+			}
+		};
 	}
 }
