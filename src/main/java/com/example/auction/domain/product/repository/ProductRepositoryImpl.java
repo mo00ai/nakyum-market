@@ -38,14 +38,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				product.startPrice,
 				product.unitPrice,
 				product.finalPrice,
-				product.startedAt,
+				Expressions.dateTemplate(String.class, "DATE_FORMAT({0}, {1})", product.createAt, "%Y-%m-%d"),
 				product.endedAt,
 				product.count
 			))
 			.from(product)
 			.join(product.image, image)
 			.where(
-
+				nameLike(keyword)
 			)
 			.orderBy(product.createAt.desc())
 			.offset(pageable.getOffset())

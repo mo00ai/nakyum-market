@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
+import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
@@ -47,14 +48,16 @@ public class ProductService {
 
 		User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
-		Product product = Product.of(dto.getName(), dto.getDescription(), dto.getStartPrice(), dto.getUnitPrice(),
-			dto.getStartedAt(), dto.getEndedAt());
-
-		Product savedProduct = productRepository.save(product);
+		Image image = null;
 
 		if (files != null && !files.isEmpty()) {
-			imageService.uploadFile(files);
+			image = imageService.uploadFile(files);
 		}
+
+		Product product = Product.of(dto.getName(), dto.getDescription(), dto.getStartPrice(), dto.getUnitPrice(),
+			dto.getEndedAt(), image);
+
+		Product savedProduct = productRepository.save(product);
 
 		ProductSaveResponseDto responseDto = new ProductSaveResponseDto(savedProduct.getId());
 

@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import org.springframework.http.HttpStatus;
+
 @Getter
 @AllArgsConstructor
 public enum ErrorCode implements BaseCode {
@@ -14,6 +16,9 @@ public enum ErrorCode implements BaseCode {
 	ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "C003", "요청한 엔티티를 찾을 수 없습니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C004", "내부 서버 오류가 발생했습니다."),
 	INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, "C005", "유효하지 않은 타입의 값입니다."),
+
+	//DB
+	DB_LOCK_CONFLICT(HttpStatus.CONFLICT, "L002", "데이터베이스 락 상태로 요청을 처리할 수 없습니다."),
 
 	//JWT
 	INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 JWT 서명입니다."),

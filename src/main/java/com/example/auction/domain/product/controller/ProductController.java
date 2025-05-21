@@ -42,7 +42,7 @@ public class ProductController {
 	@ImageValid
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public CommonResponse<ProductSaveResponseDto> saveProduct(@AuthenticationPrincipal CustomUserDetails userDetail,
-		@Valid @RequestBody ProductRequestDto dto,
+		@Valid @RequestPart("dto") ProductRequestDto dto,
 		@RequestPart(value = "files", required = false) List<MultipartFile> files) {
 
 		return CommonResponse.created(productService.saveProduct(userDetail.getUsername(), dto, files));
