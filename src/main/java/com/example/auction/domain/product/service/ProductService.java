@@ -3,6 +3,8 @@ package com.example.auction.domain.product.service;
 import static com.example.auction.domain.product.exception.ProductErrorCode.*;
 import static com.example.auction.domain.user.exception.ErrorCode.*;
 
+import com.example.auction.common.service.RedisService;
+import java.time.Duration;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +39,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 	private final ImageService imageService;
+	private final RedisService redisService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -66,6 +69,9 @@ public class ProductService {
 
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+		String key = "product:count";
+		if(redisService.setIfAbsent(key,1, Duration.ofMillis(10))){
+		}
 
 		product.addCount();
 
