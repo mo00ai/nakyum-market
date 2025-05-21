@@ -37,15 +37,7 @@ public class GlobalExceptionHandler {
 
 		BaseCode errorCode = ex.getBaseCode();
 
-		// 메시지가 에러 코드 기본 메시지와 다르면 커스텀 메시지로 응답
-		if (!ex.getMessage().equals(errorCode.getMessage())) {
-			return ResponseEntity
-				.status(errorCode.getHttpStatus())
-				.body(CommonResponse.error(errorCode, ex.getMessage()));
-		}
-
 		return new ResponseEntity<>(CommonResponse.error(errorCode), errorCode.getHttpStatus());
-		//return CommonResponse.error(errorCode);
 	}
 
 	/**

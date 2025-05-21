@@ -88,16 +88,6 @@ public class CommonResponse<T> {
 			.build();
 	}
 
-	// 커스텀 메시지가 있을때
-	public static <T> CommonResponse<T> error(BaseCode code, String customMessage) {
-		return CommonResponse.<T>builder()
-			.isError(true)
-			.status(code.getHttpStatus())
-			.code(code.getCode())
-			.message(customMessage) // 커스텀 메시지 우선
-			.build();
-	}
-
 	public static <T> CommonResponse<T> success(SuccessCode successCode) {
 		return CommonResponse.<T>builder()
 			.timestamp(LocalDateTime.now())
