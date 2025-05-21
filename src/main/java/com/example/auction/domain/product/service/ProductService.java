@@ -1,7 +1,7 @@
 package com.example.auction.domain.product.service;
 
-import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
-import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
+import static com.example.auction.domain.product.exception.ProductErrorCode.*;
+import static com.example.auction.domain.user.exception.ErrorCode.*;
 
 import java.util.List;
 
@@ -23,14 +23,18 @@ import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
+import com.example.auction.domain.product.dto.response.PageResponseDto;
 import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
 import com.example.auction.domain.product.entity.Product;
 import com.example.auction.domain.product.repository.ProductRepository;
+import com.example.auction.domain.searchLog.service.SearchLogService;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
-import com.example.auction.domain.wonitem.service.WonItemService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +44,7 @@ public class ProductService {
 	private final UserRepository userRepository;
 	private final ImageService imageService;
 	private final WonItemService wonItemService;
+	private final SearchLogService searchLogService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -80,12 +85,15 @@ public class ProductService {
 		return dto;
 	}
 
+	@Transactional(readOnly = true)
 	public PageResponse<ProductResponseDto> findProducts(String keyword, int page) {
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);
 
 		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
+
+		searchLogService.saveSearchLog(keyword);
 
 		return PageResponse.from(allPage);
 
@@ -123,7 +131,7 @@ public class ProductService {
 	//Long id = product의 id
 	//finalPrice = 낙찰가
 	@Transactional
-	public void updateFinalPrice(Long id, Long finalPrice, User user) {
+	public void updateFinalPrice(Long id, Long finalPrice) {
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
