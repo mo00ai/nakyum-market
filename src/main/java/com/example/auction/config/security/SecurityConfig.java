@@ -1,5 +1,11 @@
 package com.example.auction.config.security;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -10,9 +16,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.auction.common.dto.FilterErrorDto;
+import com.example.auction.common.exception.BaseCode;
+import com.example.auction.common.exception.ErrorCode;
 import com.example.auction.domain.user.auth.security.CustomLogoutHandler;
 import com.example.auction.domain.user.auth.security.CustomLogoutSuccessHandler;
 import com.example.auction.domain.user.auth.security.CustomOAuth2UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 @EnableWebSecurity
@@ -71,10 +83,10 @@ public class SecurityConfig {
 			// 예외 처리 설정
 			.exceptionHandling(exceptions -> exceptions
 				.authenticationEntryPoint((request, response, authException) -> {
-					response.sendError(401, "Unauthorized: " + authException.getMessage());
+					setErrorResponse(request, response, ErrorCode.INVALID_SIGNATURE);
 				})
 				.accessDeniedHandler((request, response, accessDeniedException) -> {
-					response.sendError(403, "Access Denied: " + accessDeniedException.getMessage());
+					setErrorResponse(request, response, ErrorCode.UNAUTHOIZED);
 				})
 			);
 		return http.build();
@@ -84,4 +96,27 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
+	private void setErrorResponse(HttpServletRequest request, HttpServletResponse response,
+		BaseCode baseCode) throws IOException {
+		response.setStatus(baseCode.getHttpStatus().value());
+		response.setContentType("application/json;charset=UTF-8");
+
+		FilterErrorDto error = new FilterErrorDto(
+			baseCode.getHttpStatus().value(),
+			baseCode.getMessage(),
+			LocalDateTime.now(),
+			request.getRequestURI()
+		);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+		String json = objectMapper.writeValueAsString(error);
+		response.getWriter().write(json);
+	}
+
 }
+
+
