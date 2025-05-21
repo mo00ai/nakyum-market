@@ -1,4 +1,4 @@
-package com.example.auction.domain.TopKeyword.service;
+package com.example.auction.domain.topKeyword.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.auction.domain.TopKeyword.dto.response.TopKeywordResponseDto;
-import com.example.auction.domain.TopKeyword.entity.TopKeyword;
-import com.example.auction.domain.TopKeyword.repository.TopKeywordRepository;
+import com.example.auction.domain.topKeyword.dto.response.TopKeywordResponseDto;
+import com.example.auction.domain.topKeyword.entity.TopKeyword;
+import com.example.auction.domain.topKeyword.repository.TopKeywordRepository;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.example.auction.domain.TopKeyword.controller;
+package com.example.auction.domain.topKeyword.controller;
 
 import java.util.List;
 
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.auction.common.response.CommonResponse;
-import com.example.auction.domain.TopKeyword.dto.response.TopKeywordResponseDto;
-import com.example.auction.domain.TopKeyword.service.TopKeywordService;
 import com.example.auction.domain.auth.security.CustomUserDetails;
+import com.example.auction.domain.topKeyword.dto.response.TopKeywordResponseDto;
+import com.example.auction.domain.topKeyword.service.TopKeywordService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -7,11 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.example.auction.domain.TopKeyword.entity.TopKeyword;
-import com.example.auction.domain.TopKeyword.service.TopKeywordService;
 import com.example.auction.domain.searchLog.dto.response.SearchLogResponseDto;
 import com.example.auction.domain.searchLog.entity.SearchLog;
 import com.example.auction.domain.searchLog.service.SearchLogService;
+import com.example.auction.domain.topKeyword.entity.TopKeyword;
+import com.example.auction.domain.topKeyword.service.TopKeywordService;
 
 import lombok.RequiredArgsConstructor;
 

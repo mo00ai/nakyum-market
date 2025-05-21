@@ -1,4 +1,4 @@
-package com.example.auction.domain.TopKeyword.entity;
+package com.example.auction.domain.topKeyword.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

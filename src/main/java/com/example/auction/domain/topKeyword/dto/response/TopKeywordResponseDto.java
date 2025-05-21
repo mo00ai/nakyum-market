@@ -1,6 +1,6 @@
-package com.example.auction.domain.TopKeyword.dto.response;
+package com.example.auction.domain.topKeyword.dto.response;
 
-import com.example.auction.domain.TopKeyword.entity.TopKeyword;
+import com.example.auction.domain.topKeyword.entity.TopKeyword;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
