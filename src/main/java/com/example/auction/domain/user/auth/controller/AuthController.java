@@ -116,6 +116,7 @@ public class AuthController {
 		return CommonResponse.ok();
 	}
 
+	//테스트용 - 현재 로그인한 유저 확인
 	@GetMapping("/users/me")
 	public CommonResponse<?> me(@AuthenticationPrincipal AuthUserWrapper wrapper) {
 		if (wrapper == null) {
