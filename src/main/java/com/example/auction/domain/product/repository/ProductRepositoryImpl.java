@@ -38,7 +38,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				product.startPrice,
 				product.unitPrice,
 				product.finalPrice,
-				Expressions.dateTemplate(String.class, "DATE_FORMAT({0}, {1})", product.createAt, "%Y-%m-%d"),
+				Expressions.dateTemplate(java.time.LocalDate.class, "DATE_FORMAT({0}, {1})", product.createAt, "%Y-%m-%d"),
 				product.endedAt,
 				product.count
 			))
