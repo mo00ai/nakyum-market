@@ -50,8 +50,8 @@ public class EmailService {
 			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
 			helper.setTo(email);
-			helper.setSubject("나원준화이팅");
-			helper.setText("쭈니공주님 저에게 인증번호를 알려주십쇼 : " + code, false);
+			helper.setSubject("나겸상가 회원가입을 위한 인증번호입니다.");
+			helper.setText("인증번호 : " + code, false);
 			helper.setFrom(new InternetAddress("msmskk379@gmail.com", "나겸상가"));
 
 			mailSender.send(message);
