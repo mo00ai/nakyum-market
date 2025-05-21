@@ -1,8 +1,10 @@
-package com.example.auction.domain.product.dto.response;
+package com.example.auction.common.response;
 
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+
+import com.example.auction.domain.product.dto.response.ProductResponseDto;
 
 import lombok.Builder;
 import lombok.Getter;

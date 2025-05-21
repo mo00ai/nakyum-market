@@ -19,10 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.annotation.ImageValid;
 import com.example.auction.common.response.CommonResponse;
+import com.example.auction.common.response.PageResponseDto;
 import com.example.auction.domain.auth.security.CustomUserDetails;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
-import com.example.auction.domain.product.dto.response.PageResponseDto;
 import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
@@ -75,11 +75,20 @@ public class ProductController {
 
 	//검색 v1 (아무것도 하지 않은 api)
 	@GetMapping("/v1")
-	public CommonResponse<PageResponseDto> findProducts(@AuthenticationPrincipal CustomUserDetails userDetail,
+	public CommonResponse<PageResponseDto> findProductsV1(@AuthenticationPrincipal CustomUserDetails userDetail,
 		@RequestParam(required = false) String keyword,
 		@RequestParam(defaultValue = "1") int page) {
 
 		return CommonResponse.ok(productService.findProducts(keyword, page));
+	}
+
+	//검색 v2 (캐싱 적용)
+	@GetMapping("/v2")
+	public CommonResponse<PageResponseDto> findProductsV2(@AuthenticationPrincipal CustomUserDetails userDetail,
+		@RequestParam(required = false) String keyword,
+		@RequestParam(defaultValue = "1") int page) {
+
+		return CommonResponse.ok(productService.findProductsV2(keyword, page));
 	}
 
 }

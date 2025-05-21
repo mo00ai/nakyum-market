@@ -14,11 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
+import com.example.auction.common.response.PageResponseDto;
+import com.example.auction.common.service.SearchCacheService;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
-import com.example.auction.domain.product.dto.response.PageResponseDto;
 import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
@@ -39,6 +40,7 @@ public class ProductService {
 	private final UserRepository userRepository;
 	private final ImageService imageService;
 	private final SearchLogService searchLogService;
+	private final SearchCacheService searchCacheService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -79,20 +81,6 @@ public class ProductService {
 		return dto;
 	}
 
-	@Transactional(readOnly = true)
-	public PageResponseDto findProducts(String keyword, int page) {
-
-		int adjustedPage = (page > 0) ? page - 1 : 0;
-		Pageable pageable = PageRequest.of(adjustedPage, 10);
-
-		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
-
-		searchLogService.saveSearchLog(keyword);
-
-		return PageResponseDto.from(allPage);
-
-	}
-
 	@Transactional
 	public ProductResponseDto updateProduct(Long id, ProductUpdateRequestDto dto) {
 
@@ -120,6 +108,36 @@ public class ProductService {
 		ProductWithdrawResponseDto dto = ProductWithdrawResponseDto.from(product, "상품이 삭제되었습니다.");
 
 		return dto;
+	}
+
+	@Transactional(readOnly = true)
+	public PageResponseDto findProducts(String keyword, int page) {
+
+		int adjustedPage = (page > 0) ? page - 1 : 0;
+		Pageable pageable = PageRequest.of(adjustedPage, 10);
+
+		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
+
+		searchLogService.saveSearchLog(keyword);
+
+		return PageResponseDto.from(allPage);
+
+	}
+
+	@Transactional(readOnly = true)
+	public PageResponseDto findProductsV2(String keyword, int page) {
+
+		searchCacheService.saveSearchLog(keyword);
+
+		int adjustedPage = (page > 0) ? page - 1 : 0;
+		Pageable pageable = PageRequest.of(adjustedPage, 10);
+
+		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
+
+		searchLogService.saveSearchLog(keyword);
+
+		return PageResponseDto.from(allPage);
+
 	}
 
 	//Long id = product의 id

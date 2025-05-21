@@ -21,11 +21,18 @@ public class TopKeywordController {
 
 	private final TopKeywordService topKeywordService;
 
-	@GetMapping
+	@GetMapping("/v1")
 	public CommonResponse<List<TopKeywordResponseDto>> findTopKeywords(
 		@AuthenticationPrincipal CustomUserDetails userDetail) {
 
 		return CommonResponse.ok(topKeywordService.findTopKeywords());
+	}
+
+	@GetMapping("/v2")
+	public CommonResponse<List<TopKeywordResponseDto>> findTopKeywordsV2(
+		@AuthenticationPrincipal CustomUserDetails userDetail) {
+
+		return CommonResponse.ok(topKeywordService.findTopKeywordsV2());
 	}
 
 }
