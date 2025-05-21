@@ -4,6 +4,7 @@ import static com.example.auction.domain.product.exception.ProductErrorCode.*;
 import static com.example.auction.domain.user.exception.ErrorCode.*;
 
 import com.example.auction.common.service.RedisService;
+import java.time.Duration;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -67,21 +68,19 @@ public class ProductService {
 
 	@Transactional(readOnly = true)
 	public ProductResponseDto findProduct(Long id) {
+		String key = "product:count:" + id;
 
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
-		String key = "product:count";
-		if(redisService.setIfAbsent(key,1, Duration.ofMillis(10))){
-		}
 
-		product.addCount();
+		redisService.setIfAbsent(key, product.getCount(), Duration.ofMinutes(30));
+		redisService.setProductCntExpire(key); // 남은시간 10분이하면 연장
+		long redisCount = redisService.incrementValue(key);
 
 		String uploadFileName = product.getImage().getUploadFileName();
 		String imgUrl = IMAGE_DIR + uploadFileName;
 
-		ProductResponseDto dto = ProductResponseDto.from(imgUrl, product);
-
-		return dto;
+        return ProductResponseDto.from(imgUrl, product, redisCount);
 	}
 
 	@Transactional(readOnly = true)
@@ -109,10 +108,19 @@ public class ProductService {
 		String uploadFileName = product.getImage().getUploadFileName();
 		String imgUrl = IMAGE_DIR + uploadFileName;
 
-		ProductResponseDto responseDto = ProductResponseDto.from(imgUrl, product);
+		ProductResponseDto responseDto = ProductResponseDto.from(imgUrl, product, product.getCount());
 
 		return responseDto;
 	}
+	@Transactional
+	public void updateCount(Long id, Long count){
+
+		Product product = productRepository.findByIdWithImage(id)
+			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+
+		product.updateCount(count);
+	}
+
 
 	@Transactional
 	public ProductWithdrawResponseDto deleteProduct(Long id) {

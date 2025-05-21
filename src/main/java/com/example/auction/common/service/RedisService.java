@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.Objects;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,10 @@ public class RedisService {
 
 	public RedisService(RedisTemplate<String, Object> redisTemplate) {
 		this.redisTemplate = redisTemplate;
+	}
+
+	public RedisConnection getRedisConnection(){
+		return Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection();
 	}
 
 	/**
@@ -80,6 +86,17 @@ public class RedisService {
 	public Long incrementValue(String key){
 		return redisTemplate.opsForValue().increment(key);
 	}
+
+
+	public void setProductCntExpire(String key){
+		// 현재 TTL 확인
+		long currentTtlSeconds = redisTemplate.getExpire(key);
+		// 10분보다 작으면 연장
+		if (currentTtlSeconds > 0 && currentTtlSeconds < 600) {
+			redisTemplate.expire(key, Duration.ofMinutes(10));
+		}
+	}
+
 
 	public void deleteKeyValue(String key) {
 		redisTemplate.delete(key);

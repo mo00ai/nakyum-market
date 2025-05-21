@@ -54,7 +54,7 @@ public class Product extends BaseEntity {
 	@Column(nullable = false)
 	private LocalDate endedAt;
 
-	private int count;
+	private Long count;
 
 	private LocalDate deletedAt;
 
@@ -71,18 +71,18 @@ public class Product extends BaseEntity {
 			.startPrice(startPrice)
 			.unitPrice(unitPrice)
 			.endedAt(endedAt)
-			.count(0)
+			.count(0L)
 			.image(image)
 			.build();
-	}
-
-	public void addCount() {
-		this.count++;
 	}
 
 	public void updateProduct(String name, String description) {
 		this.name = name;
 		this.description = description;
+	}
+
+	public void updateCount(Long count) {
+		this.count = count;
 	}
 
 	public void deleteProduct() {
