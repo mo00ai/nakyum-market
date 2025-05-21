@@ -6,7 +6,6 @@ import static com.example.auction.common.exception.ErrorCode.INVALID_JWT_TOKEN;
 import static com.example.auction.common.exception.ErrorCode.UNKNOWN_JWT_ERROR;
 import static com.example.auction.common.exception.ErrorCode.UNSUPPORTED_JWT_TOKEN;
 
-import com.example.auction.domain.user.entity.UserRole;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -23,9 +22,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import com.example.auction.filter.dto.FilterErrorDto;
 import com.example.auction.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;

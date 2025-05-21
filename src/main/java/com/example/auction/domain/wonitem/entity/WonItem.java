@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 
 import org.springframework.data.redis.core.RedisHash;
 
+import com.example.auction.domain.product.entity.Product;
+import com.example.auction.domain.user.entity.User;
+
 @RedisHash("wonitem")
 @Getter
 @Builder
@@ -22,17 +25,25 @@ public class WonItem {
 	@Id
 	private String key;
 
-	private Long userId;
 	private Long productId;
+	private String wonItemName;
 	private long wonItemPrice;
+	private String wonItemImageUrl;
+
+	private Long userId;
+	private String nickname;
+
 	private LocalDateTime createdAt;
 
-	public static WonItem of(String key, Long userId, Long productId, long wonItemPrice) {
+	public static WonItem of(String key, Product product, User user) {
 		return WonItem.builder()
 			.key(key)
-			.userId(userId)
-			.productId(productId)
-			.wonItemPrice(wonItemPrice)
+			.productId(product.getId())
+			.wonItemName(product.getName())
+			.wonItemPrice(product.getFinalPrice())
+			.wonItemImageUrl(product.getImage().getUploadFileName())
+			.userId(user.getId())
+			.nickname(user.getNickname())
 			.createdAt(LocalDateTime.now())
 			.build();
 	}

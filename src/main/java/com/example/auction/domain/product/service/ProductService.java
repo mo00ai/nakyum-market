@@ -18,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
+import com.example.auction.common.response.PageResponse;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
-import com.example.auction.domain.product.dto.response.PageResponseDto;
 import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
@@ -80,14 +80,14 @@ public class ProductService {
 		return dto;
 	}
 
-	public PageResponseDto findProducts(String keyword, int page) {
+	public PageResponse<ProductResponseDto> findProducts(String keyword, int page) {
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);
 
 		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
 
-		return PageResponseDto.from(allPage);
+		return PageResponse.from(allPage);
 
 	}
 
@@ -128,7 +128,7 @@ public class ProductService {
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
-		wonItemService.createWonItem(product, user);
+		wonItemService.createWonItem(product, user);    // 낙찰된 아이템 저장 로직 추가!!!~~~!!!~!~!!!
 
 	}
 
