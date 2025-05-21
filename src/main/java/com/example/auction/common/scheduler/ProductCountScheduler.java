@@ -26,7 +26,7 @@ public class ProductCountScheduler {
                 String key = new String(cursor.next());
 
                 Long count = redisService.getKeyLongValue(key);
-                productService.updateCount(Long.valueOf(key.split("count:")[1]), count);
+                productService.updateCount(Long.valueOf(key.split("product:count:")[1]), count);
 
                 redisService.deleteKeyValue(key);
             }

@@ -67,15 +67,20 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductResponseDto findProduct(Long id) {
-		String key = "product:count:" + id;
+	public ProductResponseDto findProduct(Long id, Long userId) {
+		String countKey = "product:count:" + id;
+		String lockKey = "product:"+ id +"lock:" + userId;
 
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
-		redisService.setIfAbsent(key, product.getCount(), Duration.ofMinutes(30));
-		redisService.setProductCntExpire(key); // 남은시간 10분이하면 연장
-		long redisCount = redisService.incrementValue(key);
+		redisService.setIfAbsent(countKey, product.getCount(), Duration.ofMinutes(30));
+		redisService.setProductCntExpire(countKey); // 남은시간 10분이하면 연장
+		// 중복 조회 방지 (10분 동안 1회만 증가)
+
+		long redisCount = redisService.setIfAbsent(lockKey, "", Duration.ofMinutes(10))
+			? redisService.incrementValue(countKey)
+			: redisService.getKeyLongValue(countKey);
 
 		String uploadFileName = product.getImage().getUploadFileName();
 		String imgUrl = IMAGE_DIR + uploadFileName;
