@@ -1,4 +1,4 @@
-package com.example.auction.domain.user.auth.service;
+package com.example.auction.domain.user.auth.security;
 
 import lombok.RequiredArgsConstructor;
 
@@ -10,12 +10,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.example.auction.domain.image.entity.Image;
+import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.user.auth.userInfo.OAuth2UserInfo;
 import com.example.auction.domain.user.auth.userInfo.OAuth2UserInfoFactory;
-import com.example.auction.domain.user.entity.CustomOAuth2User;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
-import com.example.auction.util.JwtUtil;
 
 /**
  * 스프링 시큐리티에서 사용자 처리함
@@ -24,7 +23,7 @@ import com.example.auction.util.JwtUtil;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	private final UserRepository userRepository;
-	private final JwtUtil jwtUtil;
+	private final ImageService imageService;
 
 	@Value("${app.default-image-id}")
 	private Long defaultImageId;
@@ -45,9 +44,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		User user = userRepository.findByEmail(userInfo.getEmail())
 			.orElseGet(() -> userRepository.save(userInfo.toEntity(defaultImage)));
 
-		String jwtToken = jwtUtil.createToken(user.getId(), user.getEmail(), user.getNickname(), user.getUserRole());
-
-		return new CustomOAuth2User(user,oAuth2User.getAttributes(),"email",jwtToken)
+		return new CustomOAuth2User(user, oAuth2User.getAttributes(), "email");
 	}
 
 }

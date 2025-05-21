@@ -19,6 +19,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
 import com.example.auction.common.response.CommonResponse;
 import com.example.auction.common.response.ErrorResponse;
 
@@ -35,6 +36,13 @@ public class GlobalExceptionHandler {
 		log.error("CustomException: {}", ex.getMessage());
 
 		BaseCode errorCode = ex.getBaseCode();
+
+		// 메시지가 에러 코드 기본 메시지와 다르면 커스텀 메시지로 응답
+		if (!ex.getMessage().equals(errorCode.getMessage())) {
+			return ResponseEntity
+				.status(errorCode.getHttpStatus())
+				.body(CommonResponse.error(errorCode, ex.getMessage()));
+		}
 
 		return new ResponseEntity<>(CommonResponse.error(errorCode), errorCode.getHttpStatus());
 		//return CommonResponse.error(errorCode);

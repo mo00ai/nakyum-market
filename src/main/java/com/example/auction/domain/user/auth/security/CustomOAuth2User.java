@@ -1,4 +1,4 @@
-package com.example.auction.domain.user.entity;
+package com.example.auction.domain.user.auth.security;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,21 +10,26 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import com.example.auction.domain.user.entity.User;
+
 /**
  * 시큐리티 인증 후(소셜로그인 성공 후)에 사용자 정보 저장용
  */
 @Getter
-public class CustomOAuth2User implements OAuth2User {
+public class CustomOAuth2User implements OAuth2User, AuthUserWrapper {
 	private final User user;
 	private final Map<String, Object> attributes;
 	private final String nameAttributeKey; //식별키 이메일이나 아이디
-	private final String jwtToken;
 
-	public CustomOAuth2User(User user, Map<String, Object> attributes, String nameAttributeKey, String jwtToken) {
+	public CustomOAuth2User(User user, Map<String, Object> attributes, String nameAttributeKey) {
 		this.user = user;
 		this.attributes = attributes;
 		this.nameAttributeKey = nameAttributeKey;
-		this.jwtToken = jwtToken;
+	}
+
+	@Override
+	public User getUser() {
+		return user;
 	}
 
 	@Override

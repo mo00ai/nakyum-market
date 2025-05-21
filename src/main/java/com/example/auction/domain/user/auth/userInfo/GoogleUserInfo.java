@@ -34,7 +34,7 @@ public class GoogleUserInfo implements OAuth2UserInfo {
 			getEmail(),
 			null,
 			getName(),
-			UserRole.ROLE_USER,
+			UserRole.USER,
 			null,
 			defaultImage,
 			"GOOGLE"

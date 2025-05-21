@@ -33,7 +33,7 @@ public class NaverUserInfo implements OAuth2UserInfo {
 			getEmail(),
 			null,
 			getName(),
-			UserRole.ROLE_USER,
+			UserRole.USER,
 			null,
 			defaultImage,
 			"NAVER"
