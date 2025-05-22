@@ -1,9 +1,12 @@
 package com.example.auction.domain.order.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,16 +27,16 @@ public class OrderController {
 
 	private final OrderService orderService;
 
+	@PreAuthorize("hasRole('USER')")
 	@PostMapping
 	public CommonResponse<OrderResponseDto> orderSave(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@Valid @RequestBody OrderRequestDto requestDto) {
 
 		User loginUser = userDetails.getUser();
-		Long totalPrice = requestDto.getTotalPrice();
-		Long productId = requestDto.getProductId();
+		List<Long> productIds = requestDto.getProductIds();
 
-		OrderResponseDto responseDto = orderService.orderSave(loginUser, totalPrice, productId);
+		OrderResponseDto responseDto = orderService.saveOrder(loginUser, productIds);
 
 		return CommonResponse.created(responseDto);
 	}

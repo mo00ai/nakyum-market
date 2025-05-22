@@ -3,12 +3,16 @@ package com.example.auction.config.security;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,38 +21,32 @@ import org.springframework.security.web.SecurityFilterChain;
 import com.example.auction.common.dto.FilterErrorDto;
 import com.example.auction.common.exception.BaseCode;
 import com.example.auction.common.exception.ErrorCode;
-import com.example.auction.domain.user.auth.security.CustomLogoutHandler;
-import com.example.auction.domain.user.auth.security.CustomLogoutSuccessHandler;
+import com.example.auction.domain.user.auth.handler.CustomLogoutHandler;
+import com.example.auction.domain.user.auth.handler.CustomLogoutSuccessHandler;
+import com.example.auction.domain.user.auth.handler.OAuth2SuccessHandler;
 import com.example.auction.domain.user.auth.security.CustomOAuth2UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
-
-	public SecurityConfig(
-		CustomOAuth2UserService customOAuth2UserService,
-		OAuth2SuccessHandler oAuth2SuccessHandler) {
-		this.customOAuth2UserService = customOAuth2UserService;
-		this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-	}
+	private final CustomLogoutHandler customLogoutHandler;
+	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.logout(logout -> logout
 				.logoutUrl("/auth/logout")
-				.addLogoutHandler(new CustomLogoutHandler())
-				.logoutSuccessHandler(new CustomLogoutSuccessHandler())
+				.addLogoutHandler(customLogoutHandler)
+				.logoutSuccessHandler(customLogoutSuccessHandler)
 			)
 			// CSRF 보호 비활성화 (REST API이므로)
 			.csrf(csrf -> csrf.disable())
@@ -71,7 +69,7 @@ public class SecurityConfig {
 				.successHandler(oAuth2SuccessHandler))        // 로그인 성공 시 실행
 
 			// 폼 로그인 비활성화 (REST API 이므로)
-			.formLogin(AbstractHttpConfigurer::disable)
+			.formLogin(formLogin -> formLogin.disable())
 
 			// HTTP Basic 인증 비활성화
 			.httpBasic(httpBasic -> httpBasic.disable())

@@ -63,6 +63,10 @@ public class ProductService {
 
 		Product savedProduct = productRepository.save(product);
 
+		if (files != null && !files.isEmpty()) {
+			imageService.uploadFile(files);
+		}
+
 		ProductSaveResponseDto responseDto = new ProductSaveResponseDto(savedProduct.getId());
 
 		return responseDto;
