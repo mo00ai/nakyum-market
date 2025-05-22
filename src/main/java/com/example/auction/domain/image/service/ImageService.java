@@ -1,6 +1,8 @@
 package com.example.auction.domain.image.service;
 
-import static com.example.auction.domain.image.exception.ImageErrorCode.*;
+import static com.example.auction.domain.image.exception.ImageErrorCode.FAILED_DELETE_FILE;
+import static com.example.auction.domain.image.exception.ImageErrorCode.FAILED_WRITE_FILE;
+import static com.example.auction.domain.image.exception.ImageErrorCode.IMAGE_NOT_FOUND;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.repository.ImageRepository;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
