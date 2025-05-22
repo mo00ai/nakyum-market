@@ -39,7 +39,12 @@ public class WonItemService {
 
 		String key = WON_ITEM_PREFIX + user.getId() + ":" + product.getId();
 
-		WonItem wonItem = WonItem.of(key, product, user);
+		WonItem wonItem = WonItem.of(
+			key,
+			user.getId(),
+			product.getId(),
+			product.getFinalPrice()
+		);
 
 		redisService.setKeyValue(key, wonItem, Duration.ofHours(72));
 

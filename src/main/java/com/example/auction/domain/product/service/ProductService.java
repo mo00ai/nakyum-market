@@ -1,7 +1,7 @@
 package com.example.auction.domain.product.service;
 
-import static com.example.auction.domain.product.exception.ProductErrorCode.*;
-import static com.example.auction.domain.user.exception.ErrorCode.*;
+import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
+import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
 import java.util.List;
 
@@ -32,9 +32,7 @@ import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.searchLog.service.SearchLogService;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import com.example.auction.domain.wonitem.service.WonItemService;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +61,10 @@ public class ProductService {
 			dto.getEndedAt(), image);
 
 		Product savedProduct = productRepository.save(product);
+
+		if (files != null && !files.isEmpty()) {
+			imageService.uploadFile(files);
+		}
 
 		ProductSaveResponseDto responseDto = new ProductSaveResponseDto(savedProduct.getId());
 
