@@ -2,9 +2,6 @@ package com.example.auction.domain.auctionbid.service;
 
 import java.time.LocalDateTime;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +22,7 @@ public class AuctionBidService {
 	private final AuctionBidRedisService auctionBidRedisService;
 	private final ProductRepository productRepository;
 
-	public void bidSave(@NotNull Long productId, Long userId, @Valid BidRequestDto requestDto) {
+	public void bidSave(Long productId, Long userId, BidRequestDto requestDto) {
 
 		Product product = productRepository.findById(productId).orElseThrow();
 		Long bidPrice = requestDto.getBidPrice();
