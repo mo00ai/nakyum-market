@@ -136,6 +136,7 @@ public class AuctionBidRedisService {
 		}
 	}
 
+	// 테스트 코드 실행 시 사용되는 메서드로 전체 캐시를 지워 테스트 초기화를 위해 사용됩니다.
 	public void clearKey(Long productId) {
 		String logKey = "auction:" + productId + ":logs";
 		String highestKey = "auction:" + productId + ":highest";
