@@ -69,6 +69,10 @@ public class OrderService {
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.getMessage()));
 
 		Order saveOrder = orderRepository.save(Order.of(findUser, product.getFinalPrice()));
-		orderItemRepository.save(OrderItem.of(saveOrder, product));
+
+		boolean exists = orderItemRepository.existsByProductId(productId);
+		if (!exists) {
+			orderItemRepository.save(OrderItem.of(saveOrder, product));
+		}
 	}
 }
