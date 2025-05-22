@@ -6,7 +6,7 @@ import com.example.auction.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Table(name = "action_bid")
+@Table(name = "auction_bid")
 @Entity
 @Getter
 @Builder

@@ -139,8 +139,4 @@ public class RedisService {
 		redisTemplate.delete(key);
 	}
 
-	public Long getExpire(String key) {
-		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
-	}
-
 }
