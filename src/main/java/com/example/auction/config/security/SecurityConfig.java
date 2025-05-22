@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -29,25 +31,21 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
-
-	public SecurityConfig(
-		CustomOAuth2UserService customOAuth2UserService,
-		OAuth2SuccessHandler oAuth2SuccessHandler) {
-		this.customOAuth2UserService = customOAuth2UserService;
-		this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-	}
+	private final CustomLogoutHandler customLogoutHandler;
+	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.logout(logout -> logout
 				.logoutUrl("/auth/logout")
-				.addLogoutHandler(new CustomLogoutHandler())
-				.logoutSuccessHandler(new CustomLogoutSuccessHandler())
+				.addLogoutHandler(customLogoutHandler)
+				.logoutSuccessHandler(customLogoutSuccessHandler)
 			)
 			// CSRF 보호 비활성화 (REST API이므로)
 			.csrf(csrf -> csrf.disable())
