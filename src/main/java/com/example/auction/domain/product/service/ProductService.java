@@ -5,6 +5,10 @@ import static com.example.auction.domain.user.exception.ErrorCode.*;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
+import com.example.auction.common.response.PageResponse;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
@@ -38,6 +43,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 	private final ImageService imageService;
+	private final WonItemService wonItemService;
 	private final SearchLogService searchLogService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
@@ -80,7 +86,7 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public PageResponseDto findProducts(String keyword, int page) {
+	public PageResponse<ProductResponseDto> findProducts(String keyword, int page) {
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);
@@ -89,7 +95,7 @@ public class ProductService {
 
 		searchLogService.saveSearchLog(keyword);
 
-		return PageResponseDto.from(allPage);
+		return PageResponse.from(allPage);
 
 	}
 
@@ -130,6 +136,7 @@ public class ProductService {
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
+		wonItemService.createWonItem(product, user);    // 낙찰된 아이템 저장 로직 추가!!!~~~!!!~!~!!!
 
 	}
 

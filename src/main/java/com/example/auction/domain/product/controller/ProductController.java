@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.annotation.ImageValid;
 import com.example.auction.common.response.CommonResponse;
+import com.example.auction.common.response.PageResponse;
+import com.example.auction.domain.auth.security.CustomUserDetails;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
 import com.example.auction.domain.product.dto.response.PageResponseDto;
