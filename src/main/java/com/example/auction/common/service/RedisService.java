@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -12,8 +11,8 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -129,6 +128,7 @@ public class RedisService {
 	public void addToZSet(String key, String value, double score) {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
+
 	public Long getExpire(String key) {
 		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
 	}

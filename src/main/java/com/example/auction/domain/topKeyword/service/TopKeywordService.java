@@ -3,14 +3,14 @@ package com.example.auction.domain.topKeyword.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.auction.domain.topKeyword.dto.response.TopKeywordResponseDto;
 import com.example.auction.domain.topKeyword.entity.TopKeyword;
 import com.example.auction.domain.topKeyword.repository.TopKeywordRepository;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

@@ -3,6 +3,8 @@ package com.example.auction.config;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.tika.Tika;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -13,8 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.auction.common.constant.BusinessRuleConstants;
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.exception.ErrorCode;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Aspect
 @Slf4j

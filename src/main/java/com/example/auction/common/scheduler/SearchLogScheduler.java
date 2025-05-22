@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +14,6 @@ import com.example.auction.domain.searchLog.entity.SearchLog;
 import com.example.auction.domain.searchLog.service.SearchLogService;
 import com.example.auction.domain.topKeyword.entity.TopKeyword;
 import com.example.auction.domain.topKeyword.service.TopKeywordService;
-
-import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

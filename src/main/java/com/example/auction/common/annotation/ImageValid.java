@@ -9,5 +9,7 @@ import java.lang.annotation.Target;
 @Target(value = ElementType.METHOD)
 @Retention(value = RetentionPolicy.RUNTIME)
 @Documented
-public @interface ImageValid {
+public @interface
+ImageValid {
+
 }

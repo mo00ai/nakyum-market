@@ -2,15 +2,16 @@ package com.example.auction.domain.product.dto.request;
 
 import java.time.LocalDate;
 
-import org.hibernate.validator.constraints.Length;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Getter
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class ProductRequestDto {
 
 	@NotNull(message = "단위가는 필수입니다.")
 	private Long unitPrice;
-	
+
 	@NotNull(message = "경매 종료일은 필수입니다.")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private LocalDate endedAt;

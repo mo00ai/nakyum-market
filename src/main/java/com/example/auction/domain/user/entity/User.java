@@ -2,9 +2,6 @@ package com.example.auction.domain.user.entity;
 
 import java.time.LocalDateTime;
 
-import com.example.auction.common.entity.BaseEntity;
-import com.example.auction.domain.image.entity.Image;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,14 +13,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import com.example.auction.common.entity.BaseEntity;
+import com.example.auction.domain.image.entity.Image;
+
 @Entity
-@Table(name="users")
+@Table(name = "users")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,7 +45,7 @@ public class User extends BaseEntity {
 	private String nickname;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false,length = 20)
+	@Column(nullable = false, length = 20)
 	private UserRole userRole;
 
 	@Column(length = 50)
@@ -58,7 +59,6 @@ public class User extends BaseEntity {
 
 	@Column(length = 20)
 	private String provider;
-
 
 	@Builder
 	public static User of(String email, String password, String nickname, UserRole userRole, String address,

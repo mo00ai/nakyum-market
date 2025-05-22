@@ -9,6 +9,8 @@ import com.example.auction.domain.user.entity.User;
  */
 public interface OAuth2UserInfo {
 	String getEmail();
+
 	String getName();
+
 	User toEntity(Image defaultImage);
 }

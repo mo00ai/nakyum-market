@@ -11,8 +11,7 @@ import com.example.auction.common.exception.BaseCode;
 @RequiredArgsConstructor
 public enum WonItemErrorCode implements BaseCode {
 
-	UNAUTHORIZED_WON_ITEM(HttpStatus.FORBIDDEN, "O001", "낙찰 이력이 존재하지 않은 상품이 포함되어 있습니다."),
-	;
+	UNAUTHORIZED_WON_ITEM(HttpStatus.FORBIDDEN, "O001", "낙찰 이력이 존재하지 않은 상품이 포함되어 있습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

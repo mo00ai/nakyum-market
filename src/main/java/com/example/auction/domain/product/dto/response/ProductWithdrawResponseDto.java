@@ -1,11 +1,11 @@
 package com.example.auction.domain.product.dto.response;
 
-import com.example.auction.domain.product.entity.Product;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import com.example.auction.domain.product.entity.Product;
 
 @Getter
 @Builder

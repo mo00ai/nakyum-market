@@ -1,11 +1,12 @@
 package com.example.auction.domain.product.dto.request;
 
-import org.hibernate.validator.constraints.Length;
-
 import jakarta.validation.constraints.NotBlank;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 @NoArgsConstructor

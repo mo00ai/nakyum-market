@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class SignupResponse {
 
-    private final String userName;
+	private final String userName;
 
-    public SignupResponse(String userName) {
-        this.userName = userName;
-    }
+	public SignupResponse(String userName) {
+		this.userName = userName;
+	}
 }

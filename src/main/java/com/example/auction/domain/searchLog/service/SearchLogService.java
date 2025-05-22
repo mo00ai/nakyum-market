@@ -3,6 +3,8 @@ package com.example.auction.domain.searchLog.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -11,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.auction.domain.searchLog.dto.response.SearchLogResponseDto;
 import com.example.auction.domain.searchLog.entity.SearchLog;
 import com.example.auction.domain.searchLog.repository.SearchLogRepository;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

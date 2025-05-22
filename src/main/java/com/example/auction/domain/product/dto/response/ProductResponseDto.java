@@ -2,11 +2,11 @@ package com.example.auction.domain.product.dto.response;
 
 import java.time.LocalDate;
 
-import com.example.auction.domain.product.entity.Product;
-import com.querydsl.core.annotations.QueryProjection;
-
 import lombok.Builder;
 import lombok.Getter;
+
+import com.example.auction.domain.product.entity.Product;
+import com.querydsl.core.annotations.QueryProjection;
 
 @Getter
 @Builder
