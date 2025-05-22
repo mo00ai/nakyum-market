@@ -2,6 +2,8 @@ package com.example.auction.domain.order.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,6 +41,7 @@ public class Order extends BaseCreateTimeEntity {
 	private long totalPrice;
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private OrderStatus orderStatus;
 
 	public static Order of(User user, long totalPrice) {

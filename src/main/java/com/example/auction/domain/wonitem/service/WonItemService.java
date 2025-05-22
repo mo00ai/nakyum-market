@@ -1,6 +1,7 @@
 package com.example.auction.domain.wonitem.service;
 
 import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
+import static com.example.auction.domain.wonitem.exception.WonItemErrorCode.UNAUTHORIZED_WON_ITEM;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -19,7 +20,6 @@ import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.response.PageResponse;
 import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.product.entity.Product;
-import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 import com.example.auction.domain.wonitem.dto.response.WonItemResponseDto;
@@ -29,10 +29,9 @@ import com.example.auction.domain.wonitem.entity.WonItem;
 @RequiredArgsConstructor
 public class WonItemService {
 
-	private final static String WON_ITEM_PREFIX = "wonItem:";
+	public final static String WON_ITEM_PREFIX = "wonItem:";
 
 	private final UserRepository userRepository;
-	private final ProductRepository productRepository;
 	private final RedisService redisService;
 
 	public void createWonItem(Product product, User user) {
@@ -41,7 +40,7 @@ public class WonItemService {
 
 		WonItem wonItem = WonItem.of(key, product, user);
 
-		redisService.setKeyValue(key, wonItem, Duration.ofHours(72));
+		redisService.setKeyValue(key, wonItem, Duration.ofSeconds(120));
 
 	}
 
@@ -67,4 +66,22 @@ public class WonItemService {
 
 		return PageResponse.fromRedis(wonItemResponseDto, page, size);
 	}
+
+	public void validateMyWonItem(Long userId, List<Long> productIds) {
+		for (Long productId : productIds) {
+			String key = WON_ITEM_PREFIX + userId + ":" + productId;
+			WonItem wonItem = (WonItem)redisService.getKeyValue(key);
+			if (wonItem == null) {
+				throw new CustomException(UNAUTHORIZED_WON_ITEM, UNAUTHORIZED_WON_ITEM.getMessage());
+			}
+		}
+	}
+
+	public void deleteWonItems(Long userId, List<Long> productIds) {
+		productIds.forEach(productId -> {
+			String key = WON_ITEM_PREFIX + userId + ":" + productId;
+			redisService.deleteKeyValue(key);
+		});
+	}
+
 }
