@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.response.PageResponseDto;
-import com.example.auction.common.service.SearchCacheService;
+import com.example.auction.common.service.RedisCacheService;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
@@ -40,7 +40,8 @@ public class ProductService {
 	private final UserRepository userRepository;
 	private final ImageService imageService;
 	private final SearchLogService searchLogService;
-	private final SearchCacheService searchCacheService;
+	// private final SearchCacheService searchCacheService;
+	private final RedisCacheService redisCacheService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -127,7 +128,7 @@ public class ProductService {
 	@Transactional(readOnly = true)
 	public PageResponseDto findProductsV2(String keyword, int page) {
 
-		searchCacheService.saveSearchLog(keyword);
+		redisCacheService.saveSearchLog(keyword);
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);
