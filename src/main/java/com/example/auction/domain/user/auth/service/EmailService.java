@@ -17,6 +17,7 @@ import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.exception.ErrorCode;
 import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.user.auth.exception.AuthErrorCode;
+import com.example.auction.domain.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +25,18 @@ public class EmailService {
 
 	private final JavaMailSender mailSender;
 	private final RedisService redisService;
+	private final UserRepository userRepository;
 
 	private static final int MAX_ATTEMPTS = 3;
 
 	//인증번호 전송
 	public void sendCode(String email) {
 		String redisKey = "email:code:" + email;
+
+		// 사전 등록된 이메일
+		if (userRepository.existsByEmail(email)) {
+			throw new CustomException(AuthErrorCode.ALREAD_REGISTERD);
+		}
 
 		// TTL 조회
 		Long ttl = redisService.getExpire(redisKey);
