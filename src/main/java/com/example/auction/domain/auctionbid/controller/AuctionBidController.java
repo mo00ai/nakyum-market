@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.auction.common.response.CommonResponse;
 import com.example.auction.domain.auctionbid.dto.request.BidRequestDto;
 import com.example.auction.domain.auctionbid.service.AuctionBidService;
-import com.example.auction.domain.auth.security.CustomUserDetails;
+import com.example.auction.domain.user.auth.security.CustomUserDetails;
 
 @RestController
 @RequiredArgsConstructor
