@@ -4,7 +4,11 @@ import static com.example.auction.domain.product.exception.ProductErrorCode.PROD
 import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
 import com.example.auction.common.service.RedisService;
+import com.example.auction.domain.auctionbid.entity.AuctionBid;
+import com.example.auction.domain.auctionbid.service.AuctionBidService;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -45,6 +49,7 @@ public class ProductService {
 	private final WonItemService wonItemService;
 	private final SearchLogService searchLogService;
 	private final RedisService redisService;
+	private final AuctionBidService auctionBidService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -63,6 +68,10 @@ public class ProductService {
 			dto.getEndedAt(), image);
 
 		Product savedProduct = productRepository.save(product);
+
+		Duration duration = Duration.between(LocalDateTime.now(),dto.getEndedAt());
+		long seconds = duration.getSeconds();
+		redisService.setKeyValue("auction:end:" + savedProduct.getId(),"", Duration.ofSeconds(10)); // 경매 종료 체크
 
 		if (files != null && !files.isEmpty()) {
 			imageService.uploadFile(files);
@@ -155,6 +164,7 @@ public class ProductService {
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
+		auctionBidService.update(id,finalPrice);
 		wonItemService.createWonItem(product, user);    // 낙찰된 아이템 저장 로직 추가!!!~~~!!!~!~!!!
 
 	}

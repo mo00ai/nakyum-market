@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import com.example.auction.domain.product.entity.Product;
 import com.querydsl.core.annotations.QueryProjection;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -28,7 +29,7 @@ public class ProductResponseDto {
 
 	private String createdAt;
 
-	private LocalDate endedAt;
+	private LocalDateTime endedAt;
 
 	private Long count;
 
@@ -50,7 +51,7 @@ public class ProductResponseDto {
 
 	@QueryProjection
 	public ProductResponseDto(Long id, String imgUrl, String name, String description, Long startPrice, Long unitPrice,
-		Long finalPrice, String createdAt, LocalDate endedAt, Long count) {
+		Long finalPrice, String createdAt, LocalDateTime endedAt, Long count) {
 		this.id = id;
 		this.imgUrl = imgUrl;
 		this.name = name;

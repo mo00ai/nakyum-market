@@ -40,4 +40,9 @@ public class AuctionBid {
                 .user(user)
                 .build();
     }
+
+    public void isSuccessUpdate(){
+        this.isSuccess = true;
+    }
+
 }

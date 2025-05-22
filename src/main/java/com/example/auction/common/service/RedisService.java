@@ -15,6 +15,7 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
@@ -136,10 +137,11 @@ public class RedisService {
 		return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
 	}
 
-
-
-	public void deleteKeyValue(String key) {
+	public void deleteRedisTemplateKeyValue(String key) {
 		redisTemplate.delete(key);
+	}
+	public void deleteStringRedisTemplateKeyValue(String key) {
+		stringRedisTemplate.delete(key);
 	}
 
 	//주어진 Lua 스크립트를 Redis에서 실행하고 결과를 Long으로 반환합니다.

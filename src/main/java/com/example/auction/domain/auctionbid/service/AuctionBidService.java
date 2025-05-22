@@ -1,5 +1,9 @@
 package com.example.auction.domain.auctionbid.service;
 
+import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.BID_PRICE_BELOW_START;
+import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.NOT_FOUND_Bid;
+
+import com.example.auction.domain.auctionbid.entity.AuctionBid;
 import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
@@ -13,6 +17,7 @@ import com.example.auction.domain.auctionbid.dto.request.BidRequestDto;
 import com.example.auction.domain.auctionbid.repository.AuctionBidRepository;
 import com.example.auction.domain.product.entity.Product;
 import com.example.auction.domain.product.repository.ProductRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +33,18 @@ public class AuctionBidService {
 		Long bidPrice = requestDto.getBidPrice();
 
 		if (bidPrice < product.getStartPrice()) {
-			throw new CustomException(ErrorCode.BID_PRICE_BELOW_START);
+			throw new CustomException(BID_PRICE_BELOW_START);
 		}
 
 		LocalDateTime now = LocalDateTime.now();
 
 		BidRedisDto dto = BidRedisDto.of(requestDto, product.getId(), userId, now);
 		auctionBidRedisService.trySaveHighestBid(productId, dto);
+	}
+
+	public void update(Long productId,Long finalPrice){
+		AuctionBid auctionBid =  auctionBidRepository.findByProductIdAndBidPrice(productId, finalPrice)
+			.orElseThrow(()->new CustomException(NOT_FOUND_Bid));
+		auctionBid.isSuccessUpdate();
 	}
 }

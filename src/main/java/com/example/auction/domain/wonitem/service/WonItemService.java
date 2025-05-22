@@ -80,7 +80,7 @@ public class WonItemService {
 	public void deleteWonItems(Long userId, List<Long> productIds) {
 		productIds.forEach(productId -> {
 			String key = WON_ITEM_PREFIX + userId + ":" + productId;
-			redisService.deleteKeyValue(key);
+			redisService.deleteRedisTemplateKeyValue(key);
 		});
 	}
 

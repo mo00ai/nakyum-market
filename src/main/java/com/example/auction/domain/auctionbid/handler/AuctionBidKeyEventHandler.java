@@ -3,15 +3,21 @@ package com.example.auction.domain.auctionbid.handler;
 import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
 import com.example.auction.common.exception.CustomException;
+import com.example.auction.common.exception.ErrorCode;
 import com.example.auction.common.handler.RedisKeyEventHandler;
 import com.example.auction.common.service.RedisService;
+import com.example.auction.domain.auctionbid.dto.BidRedisDto;
 import com.example.auction.domain.product.service.ProductService;
-import com.example.auction.domain.test.TestRequestDto;
 import com.example.auction.domain.test.repository.AuctionBidJdbcRepository;
-import com.example.auction.domain.test.service.TestService;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -29,52 +35,57 @@ public class AuctionBidKeyEventHandler implements RedisKeyEventHandler {
 
     @Override
     public String getPrefix() {
-        return "auction:";
+        return "auction:end";
     }
 
     //redis 데이터 세팅에 따라 수정 예정
     @Override
     public void handle(String key) {
-        // redis 에서 가져오기
-//        String json = redisService.getKeyValueAsString(key);
-//
-//        if (json == null) {
-//            return Optional.empty();
-//        }
-//        try {
-//            BidRedisDto dto = objectMapper.readValue(json, BidRedisDto.class);
-//            return Optional.of(dto);
-//        } catch (JsonProcessingException e) {
-//            throw new CustomException(ErrorCode.REDIS_DESERIALIZATION_ERROR);
-//        }
+
+        String productId = key.split("auction:end:")[1];
+
+        String getLogs = "auction:" + productId + ":logs";
+        String getHighest = "auction:" + productId + ":highest";
+
+        setBatchInsert(getLogs);
+        setFinalPrice(getHighest);
+    }
+    public void setBatchInsert(String key){
         Set<TypedTuple<Object>> tuples = redisService.getZSetReversData(key);
-
-        if (key.endsWith(":highest")) {
-            TestRequestDto testRequestDto = tuples.stream()
-                .map(tuple -> (TestRequestDto) tuple.getValue())
-                .findFirst()
-                .orElse(null);
-
-            User user = userRepository.findById(testRequestDto.getUserId())
-                .orElseThrow(() -> new CustomException(NOT_FOUND_USER, NOT_FOUND_USER.getMessage()));
-
-            productService.updateFinalPrice(testRequestDto.getProductId(),
-                testRequestDto.getBidPrice(), user);
-        }
-
-        if (key.endsWith(":logs")) {
-            // 타입 변환
-            List<TestRequestDto> dtoList = new java.util.ArrayList<>(tuples.stream()
-                .map(tuple -> (TestRequestDto) tuple.getValue())
-                .toList());
-            // dto 꺼내왔다고 가정
-            for (int i = 0; i < 100; i++) {
-                dtoList.add(
-                    TestRequestDto.builder().bidPrice(10000L).bidTimeAt(LocalDateTime.now()).productId(1L).userId(1L)
-                        .build());
+        List<String> jsonList = tuples.stream().map(data -> (String) data.getValue()).toList();
+        List<BidRedisDto> dtoList = jsonList.stream().map(json -> {
+            try {
+                return setObjectMapper().readValue(json, BidRedisDto.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
             }
-            auctionBidJdbcRepository.batchInsert(dtoList);
+        }).toList();
+        auctionBidJdbcRepository.batchInsert(dtoList);
+        redisService.deleteRedisTemplateKeyValue(key);
+    }
+
+    public void setFinalPrice(String key){
+        String json = redisService.getKeyValueAsString(key);
+        BidRedisDto dto;
+        try {
+            dto = setObjectMapper().readValue(json, BidRedisDto.class);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.REDIS_DESERIALIZATION_ERROR);
         }
+        User user = userRepository.findById(dto.getUserId()).orElseThrow(()-> new CustomException(NOT_FOUND_USER));
+        productService.updateFinalPrice(dto.getProductId(),dto.getBidPrice(),user);
+        redisService.deleteStringRedisTemplateKeyValue(key);
 
     }
+
+    public ObjectMapper setObjectMapper(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDateTime.class,
+            new LocalDateTimeDeserializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        objectMapper.registerModule(javaTimeModule);
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return objectMapper;
+    }
+
 }

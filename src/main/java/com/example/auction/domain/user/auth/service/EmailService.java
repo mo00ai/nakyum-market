@@ -91,8 +91,8 @@ public class EmailService {
 
 		// 인증번호 일치
 		if (saved.equals(inputCode)) {
-			redisService.deleteKeyValue(codeKey);
-			redisService.deleteKeyValue(failKey);
+			redisService.deleteRedisTemplateKeyValue(codeKey);
+			redisService.deleteRedisTemplateKeyValue(failKey);
 			return true;
 		}
 
