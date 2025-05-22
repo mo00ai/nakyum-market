@@ -1,5 +1,7 @@
 package com.example.auction.domain.order.dto.request;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -10,8 +12,6 @@ import lombok.Getter;
 public class OrderRequestDto {
 
 	@NotNull
-	private final Long productId;
+	private final List<Long> productIds;
 
-	@NotNull
-	private final Long totalPrice;
 }

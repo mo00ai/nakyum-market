@@ -3,9 +3,10 @@ package com.example.auction.domain.order.service;
 import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
 import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import com.example.auction.domain.product.entity.Product;
 import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
+import com.example.auction.domain.wonitem.service.WonItemService;
 
 @Service
 @RequiredArgsConstructor
@@ -30,19 +32,42 @@ public class OrderService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 
+	private final WonItemService wonItemService;
+
 	@Transactional
-	@PreAuthorize("hasRole('USER')")
-	public OrderResponseDto orderSave(User loginUser, Long totalPrice, Long productId) {
+	public OrderResponseDto saveOrder(User loginUser, List<Long> productIds) {
 
 		User findUser = userRepository.findById(loginUser.getId())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_USER, NOT_FOUND_USER.getMessage()));
 
-		Product findProduct = productRepository.findById(productId)
-			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.getMessage()));
+		wonItemService.validateMyWonItem(findUser.getId(), productIds);
+
+		List<Product> products = productRepository.findAllByIdInAndFinalPriceIsNotNull(productIds);
+
+		long totalPrice = products.stream().mapToLong(Product::getFinalPrice).sum();
 
 		Order saveOrder = orderRepository.save(Order.of(findUser, totalPrice));
-		orderItemRepository.save(OrderItem.of(saveOrder, findProduct));
 
-		return OrderResponseDto.from(saveOrder, findUser, findProduct);
+		List<OrderItem> orderItems = products.stream()
+			.map(p -> OrderItem.of(saveOrder, p))
+			.toList();
+
+		List<OrderItem> savedItems = orderItemRepository.saveAll(orderItems);
+
+		wonItemService.deleteWonItems(findUser.getId(), productIds);
+
+		return OrderResponseDto.from(saveOrder, findUser, savedItems);
+	}
+
+	public void saveAutoOder(Long UserId, Long productId) {
+
+		User findUser = userRepository.findById(UserId)
+			.orElseThrow(() -> new CustomException(NOT_FOUND_USER, NOT_FOUND_USER.getMessage()));
+
+		Product product = productRepository.findAllByIdAndFinalPriceIsNotNull(productId)
+			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.getMessage()));
+
+		Order saveOrder = orderRepository.save(Order.of(findUser, product.getFinalPrice()));
+		orderItemRepository.save(OrderItem.of(saveOrder, product));
 	}
 }
