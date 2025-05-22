@@ -28,7 +28,16 @@ public enum ErrorCode implements BaseCode {
 	INVALID_MIME_TYPE(HttpStatus.BAD_REQUEST, "I003", "파일 내용이 이미지가 아닙니다."),
 
 	//File
-	FILE_READ_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "파일을 읽는 중 서버 오류가 발생했습니다.");
+	FILE_READ_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "파일을 읽는 중 서버 오류가 발생했습니다."),
+
+	//Bid
+	BID_PRICE_BELOW_START(HttpStatus.BAD_REQUEST, "B001", "입찰 금액은 시작가보다 높아야 합니다."),
+	BID_PRICE_BELOW_HIGHEST(HttpStatus.BAD_REQUEST, "B002", "입찰 금액은 현재 최고가보다 높아야 합니다."),
+
+	//Redis
+	REDIS_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R001", "Redis 작업 처리 중 오류가 발생했습니다."),
+	REDIS_SERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "R002", "Redis 직렬화 중 오류가 발생했습니다."),
+	REDIS_DESERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "R003", "Redis 역직렬화 중 오류가 발생했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

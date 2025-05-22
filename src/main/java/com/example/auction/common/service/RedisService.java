@@ -15,7 +15,7 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +23,12 @@ import org.springframework.stereotype.Service;
 public class RedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, String> stringRedisTemplate;
 
-	public RedisService(RedisTemplate<String, Object> redisTemplate) {
+	public RedisService(RedisTemplate<String, Object> redisTemplate,
+		RedisTemplate<String, String> stringRedisTemplate) {
 		this.redisTemplate = redisTemplate;
+		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
 	public RedisConnection getRedisConnection(){
@@ -137,6 +140,25 @@ public class RedisService {
 
 	public void deleteKeyValue(String key) {
 		redisTemplate.delete(key);
+	}
+
+	//주어진 Lua 스크립트를 Redis에서 실행하고 결과를 Long으로 반환합니다.
+	public Long executeLuaScript(String script, List<String> keys, String value, String jason) {
+		DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+		redisScript.setScriptText(script);           // 스크립트 내용 설정
+		redisScript.setResultType(Long.class);       // 반환 타입 설정 (반드시 스크립트에서 숫자 반환해야 함)
+		return stringRedisTemplate.execute(redisScript, keys, value, jason); // Redis에 스크립트 실행 요청
+	}
+
+	public String getKeyValueAsString(String key) {
+		return stringRedisTemplate.opsForValue().get(key);
+	}
+
+	public void addToZSet(String key, String value, double score) {
+		redisTemplate.opsForZSet().add(key, value, score);
+	}
+	public Long getExpire(String key) {
+		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
 	}
 
 }
