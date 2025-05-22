@@ -45,7 +45,7 @@ public class Order extends BaseCreateTimeEntity {
 		return Order.builder()
 			.user(user)
 			.totalPrice(totalPrice)
-			.orderStatus(OrderStatus.NON_ORDER)
+			.orderStatus(OrderStatus.ORDER)
 			.build();
 	}
 
