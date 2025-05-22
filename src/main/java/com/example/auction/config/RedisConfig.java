@@ -1,6 +1,6 @@
 package com.example.auction.config;
 
-import static com.example.auction.common.constant.RedisConst.*;
+import static com.example.auction.common.constant.RedisConst.DEFAULT;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -22,11 +22,8 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import lombok.RequiredArgsConstructor;
-
 @Configuration
 @EnableCaching
-@RequiredArgsConstructor
 public class RedisConfig {
 
 	@Bean
