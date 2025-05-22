@@ -78,7 +78,7 @@ public class ProductService {
 		redisService.setProductCntExpire(countKey); // 남은시간 10분이하면 연장
 		// 중복 조회 방지 (10분 동안 1회만 증가)
 
-		long redisCount = redisService.setIfAbsent(lockKey, "", Duration.ofMinutes(10))
+		long redisCount = redisService.setIfAbsent(lockKey, "", Duration.ofSeconds(10))
 			? redisService.incrementValue(countKey)
 			: redisService.getKeyLongValue(countKey);
 

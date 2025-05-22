@@ -23,7 +23,9 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String key = message.toString();
+        System.out.println("1111111");
         if(key.startsWith("dips:")){
+
             redisService.getKeyValue(key);
         }
     }
