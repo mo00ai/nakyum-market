@@ -1,5 +1,9 @@
 package com.example.auction.common.listener;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.test.TestRequestDto;
 import com.example.auction.domain.test.service.TestService;
@@ -11,10 +15,24 @@ import org.springframework.data.redis.listener.KeyExpirationEventMessageListener
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
+import com.example.auction.common.handler.RedisKeyEventHandler;
 
 @Component
 public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
 
+	private final Map<String, RedisKeyEventHandler> handlerMap;
+
+	public RedisKeyExpirationListener(
+		RedisMessageListenerContainer listenerContainer, List<RedisKeyEventHandler> handlers
+
+	) {
+		super(listenerContainer);
+		this.handlerMap = handlers.stream()
+			.collect(Collectors.toMap(
+				RedisKeyEventHandler::getPrefix,
+				handler -> handler
+			));
+	}
     public RedisKeyExpirationListener(
         RedisMessageListenerContainer listenerContainer, RedisService redisService ,
         TestService testService
@@ -27,11 +45,17 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
     private final RedisService redisService;
     private final TestService testService;
 
-    // 만료된 키 처리
-    @Override
-    public void onMessage(Message message, byte[] pattern) {
-        String key = message.toString();
+	// 만료된 키 처리
+	@Override
+	public void onMessage(Message message, byte[] pattern) {
 
+		String key = message.toString();
+		handlerMap.entrySet().stream()
+			.filter(entry -> key.startsWith(entry.getKey()))
+			.findFirst()
+			.map(
+				Map.Entry::getValue)
+			.ifPresent(handler -> handler.handle(key));
         System.out.println("1111111");
         if(key.startsWith("AuctionBid:")){
             redisService.getKeyValue(key);
@@ -39,5 +63,7 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
             List<TestRequestDto> list = List.of(TestRequestDto.of(10000L,true, LocalDateTime.now(),1L,1L));
             testService.batchSave(list);
         }
-    }
+
+	}
+
 }

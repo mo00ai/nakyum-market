@@ -1,11 +1,15 @@
 package com.example.auction.domain.product.service;
 
-import static com.example.auction.domain.product.exception.ProductErrorCode.*;
-import static com.example.auction.domain.user.exception.ErrorCode.*;
+import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
+import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
 import com.example.auction.common.service.RedisService;
 import java.time.Duration;
 import java.util.List;
+
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -16,11 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
+import com.example.auction.common.response.PageResponse;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
-import com.example.auction.domain.product.dto.response.PageResponseDto;
 import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
@@ -29,9 +33,7 @@ import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.searchLog.service.SearchLogService;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import com.example.auction.domain.wonitem.service.WonItemService;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 	private final ImageService imageService;
+	private final WonItemService wonItemService;
 	private final SearchLogService searchLogService;
 	private final RedisService redisService;
 	@Value("${file.upload-dir}")
@@ -89,7 +92,7 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public PageResponseDto findProducts(String keyword, int page) {
+	public PageResponse<ProductResponseDto> findProducts(String keyword, int page) {
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);
@@ -98,7 +101,7 @@ public class ProductService {
 
 		searchLogService.saveSearchLog(keyword);
 
-		return PageResponseDto.from(allPage);
+		return PageResponse.from(allPage);
 
 	}
 
@@ -143,11 +146,12 @@ public class ProductService {
 	//Long id = product의 id
 	//finalPrice = 낙찰가
 	@Transactional
-	public void updateFinalPrice(Long id, Long finalPrice) {
+	public void updateFinalPrice(Long id, Long finalPrice, User user) {
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
+		wonItemService.createWonItem(product, user);    // 낙찰된 아이템 저장 로직 추가!!!~~~!!!~!~!!!
 
 	}
 

@@ -1,11 +1,11 @@
 package com.example.auction.domain.image.exception;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 
 import com.example.auction.common.exception.BaseCode;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
