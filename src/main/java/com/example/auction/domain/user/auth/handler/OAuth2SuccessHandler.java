@@ -1,4 +1,4 @@
-package com.example.auction.config.security;
+package com.example.auction.domain.user.auth.handler;
 
 import java.io.IOException;
 
