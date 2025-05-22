@@ -8,11 +8,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 
-<<<<<<<< Updated upstream:src/main/java/com/example/auction/common/response/PageResponse.java
-========
-import com.example.auction.domain.product.dto.response.ProductResponseDto;
-
->>>>>>>> Stashed changes:src/main/java/com/example/auction/common/response/PageResponseDto.java
 @Getter
 @Builder
 @RequiredArgsConstructor
@@ -56,7 +51,6 @@ public class PageResponse<T> {
 			.build();
 	}
 
-<<<<<<<< Updated upstream:src/main/java/com/example/auction/common/response/PageResponse.java
 	public static <T> PageResponse<T> fromRedis(List<T> allContent, int page, int size) {
 		if (page < 1) {
 			page = 1;
@@ -80,24 +74,6 @@ public class PageResponse<T> {
 			.totalPages(totalPages)
 			.hasPrevious(startPage > 1)
 			.hasNext(endPage < totalPages)
-========
-	public static PageResponseDto fromRedis(List<ProductResponseDto> content, int page, int size, int totalElements) {
-		int totalPages = (int)Math.ceil((double)totalElements / size);
-		int nowPage = page;
-		int pageRange = 5;
-		int startPage = ((nowPage - 1) / pageRange) * pageRange + 1;
-		int endPage = Math.min(startPage + pageRange - 1, totalPages);
-		boolean hasPrevious = startPage > 1;
-		boolean hasNext = endPage < totalPages;
-
-		return PageResponseDto.builder()
-			.productList(content)
-			.nowPage(nowPage)
-			.pageSize(size)
-			.totalPages(totalPages)
-			.hasNext(hasNext)
-			.hasPrevious(hasPrevious)
->>>>>>>> Stashed changes:src/main/java/com/example/auction/common/response/PageResponseDto.java
 			.startPage(startPage)
 			.endPage(endPage)
 			.build();
