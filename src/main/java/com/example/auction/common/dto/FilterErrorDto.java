@@ -1,4 +1,4 @@
-package com.example.auction.filter.dto;
+package com.example.auction.common.dto;
 
 import java.time.LocalDateTime;
 

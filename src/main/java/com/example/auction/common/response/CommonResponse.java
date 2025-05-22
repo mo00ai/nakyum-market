@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import org.springframework.http.HttpStatus;
+
 import com.example.auction.common.exception.BaseCode;
 import com.example.auction.common.exception.SuccessCode;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -84,6 +85,30 @@ public class CommonResponse<T> {
 			.message(baseCode.getMessage())
 			.data(null)
 			.errorResponse(ErrorResponse.of(baseCode, fieldErrors))
+			.build();
+	}
+
+	public static <T> CommonResponse<T> error(HttpStatus status, String code, String message) {
+		return CommonResponse.<T>builder()
+			.timestamp(LocalDateTime.now())
+			.isError(true)
+			.status(status)
+			.code(code)
+			.message(message)
+			.data(null)
+			.errorResponse(null)
+			.build();
+	}
+
+	public static <T> CommonResponse<T> success(SuccessCode successCode) {
+		return CommonResponse.<T>builder()
+			.timestamp(LocalDateTime.now())
+			.isError(false)
+			.status(successCode.getHttpStatus())
+			.code(successCode.getCode())
+			.message(successCode.getMessage())
+			.data(null)
+			.errorResponse(null)
 			.build();
 	}
 

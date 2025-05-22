@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -101,16 +102,16 @@ public class RedisService {
 		return keys;
 	}
 
-	public Long getExpire(String key) {
-		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
-	}
-
 	public Long incrementValue(String key) {
 		return redisTemplate.opsForValue().increment(key);
 	}
 
 	public void deleteKeyValue(String key) {
 		redisTemplate.delete(key);
+	}
+
+	public Long getExpire(String key) {
+		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
 	}
 
 }

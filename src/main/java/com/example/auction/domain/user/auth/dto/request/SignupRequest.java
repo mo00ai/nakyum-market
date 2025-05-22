@@ -1,4 +1,4 @@
-package com.example.auction.domain.auth.dto.request;
+package com.example.auction.domain.user.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

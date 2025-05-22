@@ -1,4 +1,4 @@
-package com.example.auction.domain.auth.security;
+package com.example.auction.domain.user.auth.security;
 
 import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 

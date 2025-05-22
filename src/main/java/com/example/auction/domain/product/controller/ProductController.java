@@ -27,10 +27,12 @@ import com.example.auction.common.response.PageResponse;
 import com.example.auction.domain.auth.security.CustomUserDetails;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
+import com.example.auction.domain.product.dto.response.PageResponseDto;
 import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
 import com.example.auction.domain.product.service.ProductService;
+import com.example.auction.domain.user.auth.security.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/products")
@@ -76,8 +78,7 @@ public class ProductController {
 
 	//검색 v1 (아무것도 하지 않은 api)
 	@GetMapping("/v1")
-	public CommonResponse<PageResponse<ProductResponseDto>> findProducts(
-		@AuthenticationPrincipal CustomUserDetails userDetail,
+	public CommonResponse<PageResponseDto> findProducts(@AuthenticationPrincipal CustomUserDetails userDetail,
 		@RequestParam(required = false) String keyword,
 		@RequestParam(defaultValue = "1") int page) {
 

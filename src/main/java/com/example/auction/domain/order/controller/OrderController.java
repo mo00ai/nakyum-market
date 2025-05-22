@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.auction.common.response.CommonResponse;
-import com.example.auction.domain.auth.security.CustomUserDetails;
 import com.example.auction.domain.order.dto.request.OrderRequestDto;
 import com.example.auction.domain.order.dto.response.OrderResponseDto;
 import com.example.auction.domain.order.service.OrderService;
+import com.example.auction.domain.user.auth.security.CustomUserDetails;
 import com.example.auction.domain.user.entity.User;
 
 @RequestMapping("/api/orders")
