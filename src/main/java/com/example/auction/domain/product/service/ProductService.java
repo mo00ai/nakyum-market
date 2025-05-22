@@ -23,7 +23,6 @@ import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
 import com.example.auction.domain.product.dto.request.ProductUpdateRequestDto;
-import com.example.auction.domain.product.dto.response.PageResponseDto;
 import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
@@ -133,7 +132,7 @@ public class ProductService {
 	//Long id = product의 id
 	//finalPrice = 낙찰가
 	@Transactional
-	public void updateFinalPrice(Long id, Long finalPrice) {
+	public void updateFinalPrice(Long id, Long finalPrice, User user) {
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
