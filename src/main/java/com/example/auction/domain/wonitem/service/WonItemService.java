@@ -40,7 +40,7 @@ public class WonItemService {
 
 		WonItem wonItem = WonItem.of(key, product, user);
 
-		redisService.setKeyValue(key, wonItem, Duration.ofHours(1 / 60));
+		redisService.setKeyValue(key, wonItem, Duration.ofSeconds(30));
 
 	}
 

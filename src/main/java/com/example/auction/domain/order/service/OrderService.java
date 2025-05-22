@@ -59,6 +59,7 @@ public class OrderService {
 		return OrderResponseDto.from(saveOrder, findUser, savedItems);
 	}
 
+	@Transactional
 	public void saveAutoOder(Long UserId, Long productId) {
 
 		User findUser = userRepository.findById(UserId)
