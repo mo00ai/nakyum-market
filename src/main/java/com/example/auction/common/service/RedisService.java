@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 import java.util.Objects;
+import java.util.Set;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -96,6 +98,10 @@ public class RedisService {
 			redisTemplate.expire(key, Duration.ofMinutes(10));
 		}
 	}
+	public Set<TypedTuple<Object>> getZSetReversData(String key){
+		return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
+	}
+
 
 
 	public void deleteKeyValue(String key) {
