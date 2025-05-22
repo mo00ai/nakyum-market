@@ -56,9 +56,13 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "image_id", nullable = false)
 	private Image image;
 
+	@Column(length = 20)
+	private String provider;
+
+
 	@Builder
 	public static User of(String email, String password, String nickname, UserRole userRole, String address,
-		Image image) {
+		Image image, String provider) {
 
 		return User.builder()
 			.email(email)
@@ -67,6 +71,7 @@ public class User extends BaseEntity {
 			.userRole(userRole)
 			.address(address)
 			.image(image)
+			.provider(provider)
 			.build();
 
 	}

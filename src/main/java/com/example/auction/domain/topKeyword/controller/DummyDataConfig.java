@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.example.auction.common.service.RedisCacheService;
 import com.example.auction.domain.searchLog.entity.SearchLog;
@@ -15,14 +13,14 @@ import com.example.auction.domain.searchLog.repository.SearchLogRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Configuration
+// @Configuration
 @RequiredArgsConstructor
 public class DummyDataConfig {
 
 	// private final SearchCacheService cacheService;
 	private final RedisCacheService redisCacheService;
 
-	@Bean
+	// @Bean
 	public CommandLineRunner initSearchLog(
 		SearchLogRepository searchLogRepository,
 		RedisCacheService redisCacheService // searchLogCache 포함한 서비스

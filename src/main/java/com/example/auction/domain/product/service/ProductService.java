@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
-import com.example.auction.common.response.PageResponseDto;
+import com.example.auction.common.response.PageResponse;
 import com.example.auction.common.service.RedisCacheService;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
@@ -28,6 +28,7 @@ import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.searchLog.service.SearchLogService;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
+import com.example.auction.domain.wonitem.service.WonItemService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 	private final ImageService imageService;
+	private final WonItemService wonItemService;
 	private final SearchLogService searchLogService;
 	// private final SearchCacheService searchCacheService;
 	private final RedisCacheService redisCacheService;
@@ -112,7 +114,7 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public PageResponseDto findProducts(String keyword, int page) {
+	public PageResponse<ProductResponseDto> findProducts(String keyword, int page) {
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);
@@ -121,12 +123,12 @@ public class ProductService {
 
 		searchLogService.saveSearchLog(keyword);
 
-		return PageResponseDto.from(allPage);
+		return PageResponse.from(allPage);
 
 	}
 
 	@Transactional(readOnly = true)
-	public PageResponseDto findProductsV2(String keyword, int page) {
+	public PageResponse<ProductResponseDto> findProductsV2(String keyword, int page) {
 
 		redisCacheService.saveSearchLog(keyword);
 
@@ -137,18 +139,19 @@ public class ProductService {
 
 		searchLogService.saveSearchLog(keyword);
 
-		return PageResponseDto.from(allPage);
+		return PageResponse.from(allPage);
 
 	}
 
 	//Long id = product의 id
 	//finalPrice = 낙찰가
 	@Transactional
-	public void updateFinalPrice(Long id, Long finalPrice) {
+	public void updateFinalPrice(Long id, Long finalPrice, User user) {
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
+		wonItemService.createWonItem(product, user);    // 낙찰된 아이템 저장 로직 추가!!!~~~!!!~!~!!!
 
 	}
 
