@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.auction.common.response.CommonResponse;
 import com.example.auction.common.response.PageResponse;
-import com.example.auction.domain.auth.security.CustomUserDetails;
 import com.example.auction.domain.product.entity.Product;
 import com.example.auction.domain.product.repository.ProductRepository;
+import com.example.auction.domain.user.auth.security.CustomUserDetails;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 import com.example.auction.domain.wonitem.dto.request.WonItemTestRequestDto;
