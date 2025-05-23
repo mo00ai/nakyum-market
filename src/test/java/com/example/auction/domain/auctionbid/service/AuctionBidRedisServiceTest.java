@@ -97,7 +97,8 @@ public class AuctionBidRedisServiceTest {
 		latch.await();
 
 		// then
-		assertThat(successCount.get()).isEqualTo(1);
 		assertThat(failCount.get()).isEqualTo(99);
+		assertThat(successCount.get()).isEqualTo(1);
+
 	}
 }
