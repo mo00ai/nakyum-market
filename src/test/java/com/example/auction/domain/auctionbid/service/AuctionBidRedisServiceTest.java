@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.auction.common.exception.CustomException;
-import com.example.auction.common.exception.ErrorCode;
 import com.example.auction.domain.auctionbid.dto.BidRedisDto;
 import com.example.auction.domain.auctionbid.dto.request.BidRequestDto;
 
@@ -68,7 +67,7 @@ public class AuctionBidRedisServiceTest {
 	@Test
 	void 동시에_동일가격입찰_요청시_단하나만_성공한다() throws InterruptedException {
 		// given
-		int threadCount = 10;
+		int threadCount = 100;
 		long bidPrice = 15000L;
 		ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);
@@ -99,6 +98,6 @@ public class AuctionBidRedisServiceTest {
 
 		// then
 		assertThat(successCount.get()).isEqualTo(1);
-		assertThat(failCount.get()).isEqualTo(9);
+		assertThat(failCount.get()).isEqualTo(99);
 	}
 }
