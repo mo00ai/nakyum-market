@@ -1,9 +1,8 @@
 package com.example.auction.domain.auctionbid.service;
 
 import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.BID_PRICE_BELOW_START;
-import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.NOT_FOUND_Bid;
+import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.NOT_FOUND_BID;
 
-import com.example.auction.domain.auctionbid.entity.AuctionBid;
 import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
@@ -11,13 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.example.auction.common.exception.CustomException;
-import com.example.auction.common.exception.ErrorCode;
 import com.example.auction.domain.auctionbid.dto.BidRedisDto;
 import com.example.auction.domain.auctionbid.dto.request.BidRequestDto;
+import com.example.auction.domain.auctionbid.entity.AuctionBid;
 import com.example.auction.domain.auctionbid.repository.AuctionBidRepository;
 import com.example.auction.domain.product.entity.Product;
 import com.example.auction.domain.product.repository.ProductRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,9 +40,9 @@ public class AuctionBidService {
 		auctionBidRedisService.trySaveHighestBid(productId, dto);
 	}
 
-	public void update(Long productId,Long finalPrice){
-		AuctionBid auctionBid =  auctionBidRepository.findByProductIdAndBidPrice(productId, finalPrice)
-			.orElseThrow(()->new CustomException(NOT_FOUND_Bid));
+	public void update(Long productId, Long finalPrice) {
+		AuctionBid auctionBid = auctionBidRepository.findByProductIdAndBidPrice(productId, finalPrice)
+			.orElseThrow(() -> new CustomException(NOT_FOUND_BID));
 		auctionBid.isSuccessUpdate();
 	}
 }
