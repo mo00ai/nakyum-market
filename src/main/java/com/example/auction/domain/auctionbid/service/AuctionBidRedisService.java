@@ -4,7 +4,6 @@ import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCod
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -49,10 +48,11 @@ public class AuctionBidRedisService {
 		String logKey = getLogKey(productId);
 
 		String json = serializeBid(bidRedisDto); // 1. 직렬화
-		redisService.addToZSet(logKey, json, System.currentTimeMillis()); // 2. 로그 기록
-
-		saveHighestBid(highestKey, bidRedisDto.getBidPrice(), json); // 3. 조건부 저장
+		saveHighestBid(highestKey, bidRedisDto.getBidPrice(), json); // 2. 조건부 저장
+		redisService.addToZSet(logKey, json, System.currentTimeMillis()); // 3. 성공 로그 기록
 	}
+
+
 
 	private String serializeBid(BidRedisDto dto) {
 		try {
@@ -60,11 +60,12 @@ public class AuctionBidRedisService {
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 			return objectMapper.writeValueAsString(dto);
 		} catch (JsonProcessingException e) {
+			System.out.println(e.getMessage());
 			throw new CustomException(ErrorCode.REDIS_SERIALIZATION_ERROR);
 		}
 	}
 
-	private void saveHighestBid(String highestKey, Long bidPrice, String json) {
+	private void saveHighestBid(String highestKey ,Long bidPrice, String json) {
 		String luaScript = getBidLuaScript();
 		Long result = redisService.executeLuaScript(
 			luaScript,
