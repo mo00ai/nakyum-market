@@ -1,11 +1,9 @@
 package com.example.auction.domain.auctionbid.exception;
 
+import com.example.auction.common.exception.BaseCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
-
-import com.example.auction.common.exception.BaseCode;
 
 @Getter
 @RequiredArgsConstructor

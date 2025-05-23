@@ -2,6 +2,7 @@ package com.example.auction.domain.product.dto.request;
 
 import java.time.LocalDate;
 
+import java.time.LocalDateTime;
 import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -32,7 +33,7 @@ public class ProductRequestDto {
 	private Long unitPrice;
 	
 	@NotNull(message = "경매 종료일은 필수입니다.")
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-	private LocalDate endedAt;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime endedAt;
 
 }

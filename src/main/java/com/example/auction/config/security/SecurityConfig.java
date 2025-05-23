@@ -56,7 +56,7 @@ public class SecurityConfig {
 			// 인증/인가 설정
 			.authorizeHttpRequests(authorize -> authorize
 				// 인증이 필요없는 공개 API
-				.requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**").permitAll()
+				.requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**", "api/popular-keywords/**").permitAll()
 				// 특정 권한이 필요한 API
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				// 나머지 모든 요청은 인증 필요

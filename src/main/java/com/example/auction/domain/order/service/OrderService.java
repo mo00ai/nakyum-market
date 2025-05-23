@@ -1,11 +1,9 @@
 package com.example.auction.domain.order.service;
 
-import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
-import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
+import static com.example.auction.domain.product.exception.ProductErrorCode.*;
+import static com.example.auction.domain.user.exception.ErrorCode.*;
 
 import java.util.List;
-
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +19,8 @@ import com.example.auction.domain.product.repository.ProductRepository;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 import com.example.auction.domain.wonitem.service.WonItemService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +60,7 @@ public class OrderService {
 	}
 
 	@Transactional
-	public void saveAutoOder(Long UserId, Long productId) {
+	public void saveAutoOrder(Long UserId, Long productId) {
 
 		User findUser = userRepository.findById(UserId)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_USER, NOT_FOUND_USER.getMessage()));

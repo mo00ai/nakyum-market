@@ -4,18 +4,24 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import java.util.Objects;
+import java.util.Set;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class RedisService {
 
@@ -28,9 +34,19 @@ public class RedisService {
 		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
+	public RedisConnection getRedisConnection(){
+		return Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection();
+	}
+
 	/**
 	 * 사용자가 필요한 set 메서드가 더 있다면 직접 만들어서 사용하세요
 	 */
+
+	// 키가 없으면 값을 설정하고 true 반환, 키가 이미 존재하면 아무 작업도 하지 않고 false 반환
+	public boolean setIfAbsent(String key, Object value,  Duration validityTime) {
+		return Boolean.TRUE.equals(
+            redisTemplate.opsForValue().setIfAbsent(key, value, validityTime));
+	}
 
 	// key, String
 	public void setKeyValue(String key, Object value) {
@@ -57,6 +73,19 @@ public class RedisService {
 		redisTemplate.opsForValue().set(key, values, validityTime);
 	}
 
+	public void setZSetValue(String key, String value, Long score) {
+		redisTemplate.opsForZSet().add(key, value, score);
+	}
+
+	public Set<Object> getZSetRangeByScore(String key, Long min, Long max) {
+		return redisTemplate.opsForZSet().rangeByScore(key, min, max);
+	}
+
+	public void setKeyList(String key, List<String> values, Duration ttl) {
+		stringRedisTemplate.opsForList().rightPushAll(key, values);
+		stringRedisTemplate.expire(key, ttl);
+	}
+
 	/**
 	 * 사용자가 필요한 get 메서드가 더 있다면 직접 만들어서 사용하세요(형변환 등)
 	 */
@@ -81,6 +110,11 @@ public class RedisService {
 		}
 
 		return Collections.emptyList();
+	}
+
+	public List<String> getKeyStrings(String key) {
+		List<String> cached = stringRedisTemplate.opsForList().range(key, 0, -1);
+		return cached != null ? cached : Collections.emptyList();
 	}
 
 	// getKeys는 O(n)의 성능이므로 redis에 key가 천개만 넘어가도 scan 방식으로 변경해야 한다고함
@@ -110,8 +144,24 @@ public class RedisService {
 		return redisTemplate.opsForValue().increment(key);
 	}
 
-	public void deleteKeyValue(String key) {
+
+	public void setProductCntExpire(String key){
+		// 현재 TTL 확인
+		long currentTtlSeconds = redisTemplate.getExpire(key);
+		// 10분보다 작으면 연장
+		if (currentTtlSeconds > 0 && currentTtlSeconds < 600) {
+			redisTemplate.expire(key, Duration.ofMinutes(10));
+		}
+	}
+	public Set<TypedTuple<Object>> getZSetReversData(String key){
+		return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
+	}
+
+	public void deleteRedisTemplateKeyValue(String key) {
 		redisTemplate.delete(key);
+	}
+	public void deleteStringRedisTemplateKeyValue(String key) {
+		stringRedisTemplate.delete(key);
 	}
 
 	//주어진 Lua 스크립트를 Redis에서 실행하고 결과를 Long으로 반환합니다.
@@ -126,9 +176,15 @@ public class RedisService {
 		return stringRedisTemplate.opsForValue().get(key);
 	}
 
-	public void addToZSet(String key, String value, double score) {
+	public void addToZSet(String key, String value, long score) {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
+
+	// ZSET 전체에 TTL 설정
+	public void expireKey(String key, Duration validityTime) {
+		redisTemplate.expire(key, validityTime);
+	}
+
 	public Long getExpire(String key) {
 		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
 	}

@@ -2,6 +2,7 @@ package com.example.auction.domain.product.entity;
 
 import java.time.LocalDate;
 
+import java.time.LocalDateTime;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -52,18 +53,18 @@ public class Product extends BaseEntity {
 	private Long finalPrice;
 
 	@Column(nullable = false)
-	private LocalDate endedAt;
+	private LocalDateTime endedAt;
 
-	private int count;
+	private Long count;
 
-	private LocalDate deletedAt;
+	private LocalDateTime deletedAt;
 
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "image_id", nullable = false)
 	private Image image;
 
-	public static Product of(String name, String description, Long startPrice, Long unitPrice, LocalDate endedAt,
+	public static Product of(String name, String description, Long startPrice, Long unitPrice, LocalDateTime endedAt,
 		Image image) {
 		return Product.builder()
 			.name(name)
@@ -71,13 +72,9 @@ public class Product extends BaseEntity {
 			.startPrice(startPrice)
 			.unitPrice(unitPrice)
 			.endedAt(endedAt)
-			.count(0)
+			.count(0L)
 			.image(image)
 			.build();
-	}
-
-	public void addCount() {
-		this.count++;
 	}
 
 	public void updateProduct(String name, String description) {
@@ -85,8 +82,12 @@ public class Product extends BaseEntity {
 		this.description = description;
 	}
 
+	public void updateCount(Long count) {
+		this.count = count;
+	}
+
 	public void deleteProduct() {
-		this.deletedAt = LocalDate.now();
+		this.deletedAt = LocalDateTime.now();
 	}
 
 	public void updateFinalPrice(Long finalPrice) {

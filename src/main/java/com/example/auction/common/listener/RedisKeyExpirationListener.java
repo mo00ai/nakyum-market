@@ -40,4 +40,5 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
 				Map.Entry::getValue)
 			.ifPresent(handler -> handler.handle(key));
 	}
+
 }
