@@ -4,22 +4,23 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import java.util.Objects;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import com.example.auction.domain.auctionbid.dto.BidRedisDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -27,14 +28,17 @@ public class RedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final RedisTemplate<String, String> stringRedisTemplate;
+	private final ObjectMapper objectMapper;
 
 	public RedisService(RedisTemplate<String, Object> redisTemplate,
-		RedisTemplate<String, String> stringRedisTemplate) {
+		RedisTemplate<String, String> stringRedisTemplate,
+		ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
 		this.stringRedisTemplate = stringRedisTemplate;
+		this.objectMapper = objectMapper;
 	}
 
-	public RedisConnection getRedisConnection(){
+	public RedisConnection getRedisConnection() {
 		return Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection();
 	}
 
@@ -43,9 +47,9 @@ public class RedisService {
 	 */
 
 	// 키가 없으면 값을 설정하고 true 반환, 키가 이미 존재하면 아무 작업도 하지 않고 false 반환
-	public boolean setIfAbsent(String key, Object value,  Duration validityTime) {
+	public boolean setIfAbsent(String key, Object value, Duration validityTime) {
 		return Boolean.TRUE.equals(
-            redisTemplate.opsForValue().setIfAbsent(key, value, validityTime));
+			redisTemplate.opsForValue().setIfAbsent(key, value, validityTime));
 	}
 
 	// key, String
@@ -144,8 +148,7 @@ public class RedisService {
 		return redisTemplate.opsForValue().increment(key);
 	}
 
-
-	public void setProductCntExpire(String key){
+	public void setProductCntExpire(String key) {
 		// 현재 TTL 확인
 		long currentTtlSeconds = redisTemplate.getExpire(key);
 		// 10분보다 작으면 연장
@@ -153,13 +156,27 @@ public class RedisService {
 			redisTemplate.expire(key, Duration.ofMinutes(10));
 		}
 	}
-	public Set<TypedTuple<Object>> getZSetReversData(String key){
+
+	public Set<TypedTuple<Object>> getZSetReversData(String key) {
 		return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
+	}
+
+	public BidRedisDto getZSetHighestBid(String zsetKey) {
+		// ZREVRANGE는 점수가 높은 순으로 반환 (0, 0): 가장 높은 점수 1개
+		Set<Object> result = redisTemplate.opsForZSet().reverseRange(zsetKey, 0, 0);
+
+		if (result == null || result.isEmpty()) {
+			return null;
+		}
+
+		Object raw = result.iterator().next();
+		return objectMapper.convertValue(raw, BidRedisDto.class); // 최고 입찰 JSON 문자열 반환
 	}
 
 	public void deleteRedisTemplateKeyValue(String key) {
 		redisTemplate.delete(key);
 	}
+
 	public void deleteStringRedisTemplateKeyValue(String key) {
 		stringRedisTemplate.delete(key);
 	}
@@ -177,6 +194,10 @@ public class RedisService {
 	}
 
 	public void addToZSet(String key, String value, long score) {
+		redisTemplate.opsForZSet().add(key, value, score);
+	}
+
+	public void addToZSetObject(String key, Object value, long score) {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
 

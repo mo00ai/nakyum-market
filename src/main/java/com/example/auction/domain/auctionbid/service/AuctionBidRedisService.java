@@ -2,8 +2,6 @@ package com.example.auction.domain.auctionbid.service;
 
 import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.BID_PRICE_BELOW_HIGHEST;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -18,6 +16,8 @@ import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.auctionbid.dto.BidRedisDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Slf4j
 @Service
@@ -37,12 +37,29 @@ public class AuctionBidRedisService {
 		return "auction:" + productId + ":logs";
 	}
 
-
 	/**
 	 * 입찰 정보를 Redis에 저장. 최고가보다 높은 경우만 저장됨.
 	 * 최고가 저장은 Lua 스크립트를 통해 동시성 제어 및 원자성 보장
 	 */
 
+	// trySaveHightestBidV1
+	// public void trySaveHighestBid(Long productId, BidRedisDto bidRedisDto) {
+	// 	String highestKey = getHighestKey(productId);
+	//
+	// 	BidRedisDto existDto = redisService.getZSetHighestBid(highestKey);
+	//
+	// 	if (existDto == null) {
+	// 		redisService.addToZSetObject(highestKey, bidRedisDto, bidRedisDto.getBidPrice());
+	// 	}
+	//
+	// 	if (existDto.getBidPrice() >= bidRedisDto.getBidPrice()) {
+	// 		throw new CustomException(BID_PRICE_BELOW_HIGHEST);
+	// 	}
+	//
+	// 	redisService.addToZSetObject(highestKey, bidRedisDto, bidRedisDto.getBidPrice());
+	// }
+
+	// trySaveHighestBidV2
 	public void trySaveHighestBid(Long productId, BidRedisDto bidRedisDto) {
 		String highestKey = getHighestKey(productId);
 		String logKey = getLogKey(productId);
@@ -51,8 +68,6 @@ public class AuctionBidRedisService {
 		saveHighestBid(highestKey, bidRedisDto.getBidPrice(), json); // 2. 조건부 저장
 		redisService.addToZSet(logKey, json, System.currentTimeMillis()); // 3. 성공 로그 기록
 	}
-
-
 
 	private String serializeBid(BidRedisDto dto) {
 		try {
@@ -65,7 +80,7 @@ public class AuctionBidRedisService {
 		}
 	}
 
-	private void saveHighestBid(String highestKey ,Long bidPrice, String json) {
+	private void saveHighestBid(String highestKey, Long bidPrice, String json) {
 		String luaScript = getBidLuaScript();
 		Long result = redisService.executeLuaScript(
 			luaScript,
