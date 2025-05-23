@@ -1,5 +1,7 @@
 package com.example.auction.domain.auctionbid.service;
 
+import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.BID_PRICE_BELOW_START;
+
 import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
@@ -7,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.example.auction.common.exception.CustomException;
-import com.example.auction.common.exception.ErrorCode;
 import com.example.auction.domain.auctionbid.dto.BidRedisDto;
 import com.example.auction.domain.auctionbid.dto.request.BidRequestDto;
 import com.example.auction.domain.auctionbid.repository.AuctionBidRepository;
@@ -28,7 +29,7 @@ public class AuctionBidService {
 		Long bidPrice = requestDto.getBidPrice();
 
 		if (bidPrice < product.getStartPrice()) {
-			throw new CustomException(ErrorCode.BID_PRICE_BELOW_START);
+			throw new CustomException(BID_PRICE_BELOW_START);
 		}
 
 		LocalDateTime now = LocalDateTime.now();
