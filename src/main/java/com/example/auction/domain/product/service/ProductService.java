@@ -3,6 +3,12 @@ package com.example.auction.domain.product.service;
 import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
 import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
+import com.example.auction.common.service.RedisService;
+import com.example.auction.domain.auctionbid.entity.AuctionBid;
+import com.example.auction.domain.auctionbid.service.AuctionBidService;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -42,6 +48,8 @@ public class ProductService {
 	private final ImageService imageService;
 	private final WonItemService wonItemService;
 	private final SearchLogService searchLogService;
+	private final RedisService redisService;
+	private final AuctionBidService auctionBidService;
 	@Value("${file.upload-dir}")
 	private String IMAGE_DIR;
 
@@ -61,6 +69,11 @@ public class ProductService {
 
 		Product savedProduct = productRepository.save(product);
 
+		// 저장 후 레디스 올림
+		Duration duration = Duration.between(LocalDateTime.now(),dto.getEndedAt());
+		long seconds = duration.getSeconds();
+		redisService.setKeyValue("auction:end:" + savedProduct.getId(),"", Duration.ofSeconds(seconds)); // 경매 종료 체크
+
 		if (files != null && !files.isEmpty()) {
 			imageService.uploadFile(files);
 		}
@@ -71,19 +84,25 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductResponseDto findProduct(Long id) {
+	public ProductResponseDto findProduct(Long id, Long userId) {
+		String countKey = "product:count:" + id;
+		String lockKey = "product:"+ id +"lock:" + userId;
 
 		Product product = productRepository.findByIdWithImage(id)
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
-		product.addCount();
+		redisService.setIfAbsent(countKey, product.getCount(), Duration.ofMinutes(30));
+		redisService.setProductCntExpire(countKey); // 남은시간 10분이하면 연장
+		// 중복 조회 방지 (10분 동안 1회만 증가)
+
+		long redisCount = redisService.setIfAbsent(lockKey, "", Duration.ofSeconds(10))
+			? redisService.incrementValue(countKey)
+			: redisService.getKeyLongValue(countKey);
 
 		String uploadFileName = product.getImage().getUploadFileName();
 		String imgUrl = IMAGE_DIR + uploadFileName;
 
-		ProductResponseDto dto = ProductResponseDto.from(imgUrl, product);
-
-		return dto;
+        return ProductResponseDto.from(imgUrl, product, redisCount);
 	}
 
 	@Transactional(readOnly = true)
@@ -111,10 +130,19 @@ public class ProductService {
 		String uploadFileName = product.getImage().getUploadFileName();
 		String imgUrl = IMAGE_DIR + uploadFileName;
 
-		ProductResponseDto responseDto = ProductResponseDto.from(imgUrl, product);
+		ProductResponseDto responseDto = ProductResponseDto.from(imgUrl, product, product.getCount());
 
 		return responseDto;
 	}
+	@Transactional
+	public void updateCount(Long id, Long count){
+
+		Product product = productRepository.findByIdWithImage(id)
+			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+
+		product.updateCount(count);
+	}
+
 
 	@Transactional
 	public ProductWithdrawResponseDto deleteProduct(Long id) {
@@ -137,6 +165,7 @@ public class ProductService {
 			.orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
 		product.updateFinalPrice(finalPrice);
+		auctionBidService.update(id,finalPrice);
 		wonItemService.createWonItem(product, user);    // 낙찰된 아이템 저장 로직 추가!!!~~~!!!~!~!!!
 
 	}

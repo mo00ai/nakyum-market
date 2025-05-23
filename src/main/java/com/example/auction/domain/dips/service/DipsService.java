@@ -39,8 +39,8 @@ public class DipsService {
 
         User user = findByUserOrNotFoundThrow(userDetails.getUsername());
         // 유저 별 고유 ID
-        String lockKey = "lock:" + user.getId();
-        String countKey = "count:" + user.getId();
+        String lockKey = "dips:lock:" + user.getId();
+        String countKey = "dips:count" + user.getId();
         // DB 락 체크
         if(redisService.getKeyValue(lockKey) != null) throw new CustomException(DB_LOCK_CONFLICT,DB_LOCK_CONFLICT.getMessage());
 
@@ -53,14 +53,14 @@ public class DipsService {
         // 첫 클릭
         Long count = redisService.getKeyLongValue(countKey);
         if(count == null) {
-            redisService.setKeyValue(countKey, 1L, Duration.ofSeconds(COUNT_TIME));
+            redisService.setKeyValue(countKey, 1L, Duration.ofMinutes(COUNT_TIME));
         }else{
             count = redisService.incrementValue(countKey); // count + 1
         }
 
         // 짧은 시간 내 5번 이상 클릭 시 DB 락
         if(count != null && count >= MAX_COUNT){
-            redisService.setKeyValue(lockKey,user.getId(),Duration.ofSeconds(LOCK_TIME));
+            redisService.setKeyValue(lockKey,user.getId(),Duration.ofMinutes(LOCK_TIME));
         }
 
         if(isClick){

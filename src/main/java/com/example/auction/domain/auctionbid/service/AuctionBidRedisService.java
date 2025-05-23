@@ -1,5 +1,10 @@
 package com.example.auction.domain.auctionbid.service;
 
+import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.BID_PRICE_BELOW_HIGHEST;
+
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -33,6 +38,7 @@ public class AuctionBidRedisService {
 		return "auction:" + productId + ":logs";
 	}
 
+
 	/**
 	 * 입찰 정보를 Redis에 저장. 최고가보다 높은 경우만 저장됨.
 	 * 최고가 저장은 Lua 스크립트를 통해 동시성 제어 및 원자성 보장
@@ -50,6 +56,8 @@ public class AuctionBidRedisService {
 
 	private String serializeBid(BidRedisDto dto) {
 		try {
+			objectMapper.registerModule(new JavaTimeModule()); // 시간 타입을 직렬화하려면 필요
+			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 			return objectMapper.writeValueAsString(dto);
 		} catch (JsonProcessingException e) {
 			throw new CustomException(ErrorCode.REDIS_SERIALIZATION_ERROR);
@@ -71,7 +79,7 @@ public class AuctionBidRedisService {
 
 		if (result == 0L) {
 			log.warn("입찰 실패: 새 입찰가 {} <= 기존 입찰가", bidPrice);
-			throw new CustomException(ErrorCode.BID_PRICE_BELOW_HIGHEST);
+			throw new CustomException(BID_PRICE_BELOW_HIGHEST);
 		}
 	}
 
@@ -140,7 +148,7 @@ public class AuctionBidRedisService {
 	public void clearKey(Long productId) {
 		String logKey = "auction:" + productId + ":logs";
 		String highestKey = "auction:" + productId + ":highest";
-		redisService.deleteKeyValue(logKey);
-		redisService.deleteKeyValue(highestKey);
+		redisService.deleteRedisTemplateKeyValue(logKey);
+		redisService.deleteRedisTemplateKeyValue(highestKey);
 	}
 }
