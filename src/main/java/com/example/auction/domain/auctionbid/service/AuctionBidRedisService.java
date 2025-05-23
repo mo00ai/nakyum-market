@@ -1,5 +1,7 @@
 package com.example.auction.domain.auctionbid.service;
 
+import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.BID_PRICE_BELOW_HIGHEST;
+
 import java.util.Collections;
 import java.util.Optional;
 
@@ -43,9 +45,8 @@ public class AuctionBidRedisService {
 		String logKey = getLogKey(productId);
 
 		String json = serializeBid(bidRedisDto); // 1. 직렬화
-		redisService.addToZSet(logKey, json, System.currentTimeMillis()); // 2. 로그 기록
-
 		saveHighestBid(highestKey, bidRedisDto.getBidPrice(), json); // 3. 조건부 저장
+		redisService.addToZSet(logKey, json, System.currentTimeMillis()); // 2. 로그 기록
 	}
 
 	private String serializeBid(BidRedisDto dto) {
@@ -71,7 +72,7 @@ public class AuctionBidRedisService {
 
 		if (result == 0L) {
 			log.warn("입찰 실패: 새 입찰가 {} <= 기존 입찰가", bidPrice);
-			throw new CustomException(ErrorCode.BID_PRICE_BELOW_HIGHEST);
+			throw new CustomException(BID_PRICE_BELOW_HIGHEST);
 		}
 	}
 
