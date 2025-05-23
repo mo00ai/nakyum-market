@@ -1,6 +1,6 @@
 package com.example.auction.config;
 
-import static com.example.auction.common.constant.RedisConst.*;
+import static com.example.auction.common.constant.RedisConst.DEFAULT;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -21,6 +21,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -82,6 +83,7 @@ public class RedisConfig {
 		ObjectMapper redisObjectMapper = new ObjectMapper();
 		redisObjectMapper.registerModule(new JavaTimeModule());
 
+		redisObjectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		// 타입 검증기 설정
 		PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
 			.allowIfBaseType(Object.class)
