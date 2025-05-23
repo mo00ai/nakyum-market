@@ -21,6 +21,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -37,19 +38,6 @@ public class RedisConfig {
 		// Redis용 ObjectMapper 설정
 		ObjectMapper redisObjectMapper = createRedisObjectMapper();
 
-		// 직렬화 설정
-		GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
-		StringRedisSerializer stringSerializer = new StringRedisSerializer();
-
-//		template.setKeySerializer(stringSerializer);
-//		template.setHashKeySerializer(stringSerializer);
-//		template.setValueSerializer(jsonSerializer);
-//		template.setHashValueSerializer(jsonSerializer);
-//
-//		template.setKeySerializer(new StringRedisSerializer());
-//		template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-//		template.setHashKeySerializer(new StringRedisSerializer());
-//		template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
 		template.setHashKeySerializer(new StringRedisSerializer());
@@ -86,6 +74,7 @@ public class RedisConfig {
 		ObjectMapper redisObjectMapper = new ObjectMapper();
 		redisObjectMapper.registerModule(new JavaTimeModule());
 
+		redisObjectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		// 타입 검증기 설정
 		PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
 			.allowIfBaseType(Object.class)
