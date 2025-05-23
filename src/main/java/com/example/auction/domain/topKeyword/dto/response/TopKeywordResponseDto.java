@@ -17,4 +17,8 @@ public class TopKeywordResponseDto {
 		return TopKeywordResponseDto.builder().keyword(topKeyword.getKeyword()).build();
 	}
 
+	public static TopKeywordResponseDto from(String keyword) {
+		return TopKeywordResponseDto.builder().keyword(keyword).build();
+	}
+
 }

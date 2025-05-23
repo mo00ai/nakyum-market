@@ -1,7 +1,7 @@
 package com.example.auction.domain.product.service;
 
-import static com.example.auction.domain.product.exception.ProductErrorCode.PRODUCT_NOT_FOUND;
-import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
+import static com.example.auction.domain.product.exception.ProductErrorCode.*;
+import static com.example.auction.domain.user.exception.ErrorCode.*;
 
 import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.auctionbid.entity.AuctionBid;
@@ -10,10 +10,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -25,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.auction.common.exception.CustomException;
 import com.example.auction.common.response.PageResponse;
+import com.example.auction.common.service.RedisCacheService;
 import com.example.auction.domain.image.entity.Image;
 import com.example.auction.domain.image.service.ImageService;
 import com.example.auction.domain.product.dto.request.ProductRequestDto;
@@ -39,6 +36,9 @@ import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 import com.example.auction.domain.wonitem.service.WonItemService;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -48,6 +48,8 @@ public class ProductService {
 	private final ImageService imageService;
 	private final WonItemService wonItemService;
 	private final SearchLogService searchLogService;
+	// private final SearchCacheService searchCacheService;
+	private final RedisCacheService redisCacheService;
 	private final RedisService redisService;
 	private final AuctionBidService auctionBidService;
 	@Value("${file.upload-dir}")
@@ -105,20 +107,6 @@ public class ProductService {
         return ProductResponseDto.from(imgUrl, product, redisCount);
 	}
 
-	@Transactional(readOnly = true)
-	public PageResponse<ProductResponseDto> findProducts(String keyword, int page) {
-
-		int adjustedPage = (page > 0) ? page - 1 : 0;
-		Pageable pageable = PageRequest.of(adjustedPage, 10);
-
-		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
-
-		searchLogService.saveSearchLog(keyword);
-
-		return PageResponse.from(allPage);
-
-	}
-
 	@Transactional
 	public ProductResponseDto updateProduct(Long id, ProductUpdateRequestDto dto) {
 
@@ -155,6 +143,36 @@ public class ProductService {
 		ProductWithdrawResponseDto dto = ProductWithdrawResponseDto.from(product, "상품이 삭제되었습니다.");
 
 		return dto;
+	}
+
+	@Transactional(readOnly = true)
+	public PageResponse<ProductResponseDto> findProducts(String keyword, int page) {
+
+		int adjustedPage = (page > 0) ? page - 1 : 0;
+		Pageable pageable = PageRequest.of(adjustedPage, 10);
+
+		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
+
+		searchLogService.saveSearchLog(keyword);
+
+		return PageResponse.from(allPage);
+
+	}
+
+	@Transactional(readOnly = true)
+	public PageResponse<ProductResponseDto> findProductsV2(String keyword, int page) {
+
+		redisCacheService.saveSearchLog(keyword, System.currentTimeMillis());
+
+		int adjustedPage = (page > 0) ? page - 1 : 0;
+		Pageable pageable = PageRequest.of(adjustedPage, 10);
+
+		Page<ProductResponseDto> allPage = productRepository.findProducts(keyword, pageable, IMAGE_DIR);
+
+		searchLogService.saveSearchLog(keyword);
+
+		return PageResponse.from(allPage);
+
 	}
 
 	//Long id = product의 id

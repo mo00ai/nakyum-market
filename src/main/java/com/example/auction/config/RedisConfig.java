@@ -1,6 +1,6 @@
 package com.example.auction.config;
 
-import static com.example.auction.common.constant.RedisConst.DEFAULT;
+import static com.example.auction.common.constant.RedisConst.*;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -45,6 +45,13 @@ public class RedisConfig {
 		template.setHashKeySerializer(stringSerializer);
 		template.setValueSerializer(jsonSerializer);
 		template.setHashValueSerializer(jsonSerializer);
+
+		template.setKeySerializer(new StringRedisSerializer());
+		template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+		template.setHashKeySerializer(new StringRedisSerializer());
+		template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+		template.setEnableTransactionSupport(true);
+		template.afterPropertiesSet();
 
 		return template;
 	}

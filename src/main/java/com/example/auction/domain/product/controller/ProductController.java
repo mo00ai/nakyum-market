@@ -2,10 +2,6 @@ package com.example.auction.domain.product.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,6 +27,9 @@ import com.example.auction.domain.product.dto.response.ProductSaveResponseDto;
 import com.example.auction.domain.product.dto.response.ProductWithdrawResponseDto;
 import com.example.auction.domain.product.service.ProductService;
 import com.example.auction.domain.user.auth.security.CustomUserDetails;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/products")
@@ -76,12 +75,22 @@ public class ProductController {
 
 	//검색 v1 (아무것도 하지 않은 api)
 	@GetMapping("/v1")
-	public CommonResponse<PageResponse<ProductResponseDto>> findProducts(
+	public CommonResponse<PageResponse<ProductResponseDto>> findProductsV1(
 		@AuthenticationPrincipal CustomUserDetails userDetail,
 		@RequestParam(required = false) String keyword,
 		@RequestParam(defaultValue = "1") int page) {
 
 		return CommonResponse.ok(productService.findProducts(keyword, page));
+	}
+
+	//검색 v2 (캐싱 적용)
+	@GetMapping("/v2")
+	public CommonResponse<PageResponse<ProductResponseDto>> findProductsV2(
+		@AuthenticationPrincipal CustomUserDetails userDetail,
+		@RequestParam(required = false) String keyword,
+		@RequestParam(defaultValue = "1") int page) {
+
+		return CommonResponse.ok(productService.findProductsV2(keyword, page));
 	}
 
 }

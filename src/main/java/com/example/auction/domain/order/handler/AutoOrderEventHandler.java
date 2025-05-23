@@ -1,13 +1,13 @@
 package com.example.auction.domain.order.handler;
 
-import static com.example.auction.domain.wonitem.service.WonItemService.WON_ITEM_PREFIX;
-
-import lombok.RequiredArgsConstructor;
+import static com.example.auction.domain.wonitem.service.WonItemService.*;
 
 import org.springframework.stereotype.Component;
 
 import com.example.auction.common.handler.RedisKeyEventHandler;
 import com.example.auction.domain.order.service.OrderService;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class AutoOrderEventHandler implements RedisKeyEventHandler {
 		String[] split = key.split(":");
 		long userId = Long.parseLong(split[1]);
 		long productId = Long.parseLong(split[2]);
-		orderService.saveAutoOder(userId, productId);
+		orderService.saveAutoOrder(userId, productId);
 	}
 
 }
