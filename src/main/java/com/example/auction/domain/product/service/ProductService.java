@@ -69,9 +69,10 @@ public class ProductService {
 
 		Product savedProduct = productRepository.save(product);
 
+		// 저장 후 레디스 올림
 		Duration duration = Duration.between(LocalDateTime.now(),dto.getEndedAt());
 		long seconds = duration.getSeconds();
-		redisService.setKeyValue("auction:end:" + savedProduct.getId(),"", Duration.ofSeconds(10)); // 경매 종료 체크
+		redisService.setKeyValue("auction:end:" + savedProduct.getId(),"", Duration.ofSeconds(seconds)); // 경매 종료 체크
 
 		if (files != null && !files.isEmpty()) {
 			imageService.uploadFile(files);
