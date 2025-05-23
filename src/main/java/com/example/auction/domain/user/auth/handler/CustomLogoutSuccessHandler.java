@@ -1,11 +1,16 @@
 package com.example.auction.domain.user.auth.handler;
 
+import com.example.auction.domain.dips.service.DipsService;
+import com.example.auction.domain.product.service.ProductService;
+import com.example.auction.domain.user.auth.security.CustomUserDetails;
 import java.io.IOException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +21,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Component
+@RequiredArgsConstructor
 public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final DipsService dipsService;
 
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -27,6 +34,8 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 		if (response.isCommitted()) {
 			return;
 		}
+		CustomUserDetails userDetail = (CustomUserDetails) authentication.getPrincipal();
+		dipsService.removeRedis(userDetail);
 
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("application/json;charset=UTF-8");

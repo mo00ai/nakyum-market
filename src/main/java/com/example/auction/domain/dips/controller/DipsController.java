@@ -5,6 +5,7 @@ import com.example.auction.common.response.CommonResponse;
 import com.example.auction.domain.dips.dto.response.DipsFindResponseDto;
 import com.example.auction.domain.dips.dto.response.DipsSaveResponseDto;
 import com.example.auction.domain.dips.service.DipsService;
+import com.example.auction.domain.product.dto.response.ProductResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@RequestMapping("/products/dibs")
+@RequestMapping("/api/products/dibs")
 @RestController
 @RequiredArgsConstructor
 public class DipsController {
@@ -32,7 +33,7 @@ public class DipsController {
     }
 
     @GetMapping
-    public CommonResponse<List<DipsFindResponseDto>> findDips(
+    public CommonResponse<List<ProductResponseDto>> findDips(
         @AuthenticationPrincipal UserDetails userDetails
     ){
         return CommonResponse.ok(dipsService.findDips(userDetails));

@@ -1,5 +1,6 @@
 package com.example.auction.domain.user.auth.controller;
 
+import com.example.auction.domain.dips.service.DipsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -106,7 +107,10 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
-	public CommonResponse<Void> logout(HttpServletRequest request) {
+	public CommonResponse<Void> logout(
+		@AuthenticationPrincipal CustomUserDetails userDetail,
+		HttpServletRequest request
+	) {
 		HttpSession session = request.getSession(false);
 
 		if (session != null) {

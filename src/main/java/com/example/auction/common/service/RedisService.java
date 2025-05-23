@@ -210,4 +210,22 @@ public class RedisService {
 		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
 	}
 
+	public void setOpsForSet(String key,Long id){
+		redisTemplate.opsForSet().add(key, id);
+	}
+	public void removeOpsForSetALL(String key){
+		redisTemplate.delete(key);
+	}
+	public void removeOpsForSet(String key,Long id){
+		redisTemplate.opsForSet().remove(key, id);
+	}
+	// 값 존재 여부
+	public Boolean isOpsForSet(String key,Long id){
+		return redisTemplate.opsForSet().isMember(key,id);
+	}
+	//조회
+	public Set<Object> findOpsForSet(String key ){
+		 return redisTemplate.opsForSet().members(key);
+	}
+
 }

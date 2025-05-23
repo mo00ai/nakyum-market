@@ -74,7 +74,7 @@ public class ProductService {
 		// 저장 후 레디스 올림
 		Duration duration = Duration.between(LocalDateTime.now(),dto.getEndedAt());
 		long seconds = duration.getSeconds();
-		redisService.setKeyValue("auction:end:" + savedProduct.getId(),"", Duration.ofSeconds(seconds)); // 경매 종료 체크
+		redisService.setKeyValue("auction:end:" + savedProduct.getId(),dto.getEndedAt(), Duration.ofSeconds(seconds)); // 경매 종료 체크
 
 		if (files != null && !files.isEmpty()) {
 			imageService.uploadFile(files);
@@ -95,8 +95,8 @@ public class ProductService {
 
 		redisService.setIfAbsent(countKey, product.getCount(), Duration.ofMinutes(30));
 		redisService.setProductCntExpire(countKey); // 남은시간 10분이하면 연장
-		// 중복 조회 방지 (10분 동안 1회만 증가)
 
+		// 중복 조회 방지 (10분 동안 1회만 증가)
 		long redisCount = redisService.setIfAbsent(lockKey, "", Duration.ofSeconds(10))
 			? redisService.incrementValue(countKey)
 			: redisService.getKeyLongValue(countKey);
