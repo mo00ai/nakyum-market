@@ -38,19 +38,10 @@ public class RedisConfig {
 		// Redis용 ObjectMapper 설정
 		ObjectMapper redisObjectMapper = createRedisObjectMapper();
 
-		// 직렬화 설정
-		GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
-		StringRedisSerializer stringSerializer = new StringRedisSerializer();
-
-		template.setKeySerializer(stringSerializer);
-		template.setHashKeySerializer(stringSerializer);
-		template.setValueSerializer(jsonSerializer);
-		template.setHashValueSerializer(jsonSerializer);
-
 		template.setKeySerializer(new StringRedisSerializer());
-		template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+		template.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
 		template.setHashKeySerializer(new StringRedisSerializer());
-		template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+		template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
 		template.setEnableTransactionSupport(true);
 		template.afterPropertiesSet();
 
