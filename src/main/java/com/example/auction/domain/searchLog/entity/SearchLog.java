@@ -1,6 +1,6 @@
 package com.example.auction.domain.searchLog.entity;
 
-import com.example.auction.common.entity.BaseCreateTimeEntity;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class SearchLog extends BaseCreateTimeEntity {
+public class SearchLog {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,9 +29,12 @@ public class SearchLog extends BaseCreateTimeEntity {
 	@Column(nullable = false, length = 20)
 	private String keyword;
 
-	public static SearchLog of(String keyword) {
+	private LocalDateTime createAt;
+
+	public static SearchLog of(String keyword, LocalDateTime now) {
 		return SearchLog.builder()
 			.keyword(keyword)
+			.createAt(now)
 			.build();
 	}
 

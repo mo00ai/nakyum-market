@@ -134,7 +134,7 @@ public class ProductService {
 	@Transactional(readOnly = true)
 	public PageResponse<ProductResponseDto> findProductsV2(String keyword, int page) {
 
-		redisCacheService.saveSearchLog(keyword);
+		redisCacheService.saveSearchLog(keyword, System.currentTimeMillis());
 
 		int adjustedPage = (page > 0) ? page - 1 : 0;
 		Pageable pageable = PageRequest.of(adjustedPage, 10);

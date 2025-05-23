@@ -16,9 +16,10 @@ public class TimeRangeUtils {
 
 	//현재 시간 기준으로 속한 블록의 키를 반환 (캐시 키로 활용 가능)
 	public static long getCurrentBlockKey(long currentMillis) {
+
 		return (currentMillis / BLOCK_DURATION) - 1;
 	}
-	
+
 	//시간 범위를 담는 내부 클래스
 	public static class TimeRange {
 		public final long start;

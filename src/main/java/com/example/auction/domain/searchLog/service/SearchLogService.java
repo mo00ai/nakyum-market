@@ -1,6 +1,8 @@
 package com.example.auction.domain.searchLog.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +33,11 @@ public class SearchLogService {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveSearchLog(String keyword) {
 
-		searchLogRepository.save(SearchLog.of(keyword));
+		LocalDateTime dateTime = Instant.ofEpochMilli(System.currentTimeMillis())
+			.atZone(ZoneId.systemDefault())  // 또는 ZoneId.of("Asia/Seoul")
+			.toLocalDateTime();
+
+		searchLogRepository.save(SearchLog.of(keyword, dateTime));
 
 	}
 

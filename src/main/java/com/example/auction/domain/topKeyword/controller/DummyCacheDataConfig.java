@@ -1,13 +1,7 @@
 package com.example.auction.domain.topKeyword.controller;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,8 +10,6 @@ import java.util.concurrent.Future;
 import org.springframework.boot.CommandLineRunner;
 
 import com.example.auction.common.service.RedisCacheService;
-import com.example.auction.domain.searchLog.entity.SearchLog;
-import com.example.auction.domain.searchLog.repository.SearchLogRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +17,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 // @Configuration
 @RequiredArgsConstructor
-public class DummyDataConfig {
+public class DummyCacheDataConfig {
 
 	private final RedisCacheService redisCacheService;
-	private static final int TOTAL = 500000;
-	private static final int BATCH_SIZE = 500;
+	private static final int TOTAL = 1000000;
+	private static final int BATCH_SIZE = 1000;
 	private static final int THREAD_COUNT = 10;
 
 	// @Bean
-	public CommandLineRunner initSearchLog(SearchLogRepository searchLogRepository) {
+	public CommandLineRunner initCacheOnlySearchLogs() {
 		return args -> {
 			List<String> keywords = Arrays.asList("아이폰", "맥북", "자전거", "의자", "책상", "조명", "모니터", "키보드", "마우스", "카메라");
 			ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-			List<Future<?>> futures = new ArrayList<>();
+			List<Future<?>> futures = new java.util.ArrayList<>();
 
 			long now = System.currentTimeMillis();
 			long startMillis = now - 20 * 60 * 1000L;
@@ -46,22 +38,12 @@ public class DummyDataConfig {
 			for (int i = 0; i < TOTAL; i += BATCH_SIZE) {
 				futures.add(executor.submit(() -> {
 					Random random = new Random();
-					List<SearchLog> batch = new ArrayList<>();
-					Map<String, Long> keywordTimeMap = new HashMap<>();
-
 					for (int j = 0; j < BATCH_SIZE; j++) {
 						String keyword = keywords.get(random.nextInt(keywords.size()));
 						long randomTime = startMillis + (long)(random.nextDouble() * (endMillis - startMillis));
-						LocalDateTime randomDateTime = Instant.ofEpochMilli(randomTime)
-							.atZone(ZoneId.systemDefault()) // 또는 ZoneId.of("Asia/Seoul")
-							.toLocalDateTime();
 
-						batch.add(SearchLog.of(keyword, randomDateTime));
-						keywordTimeMap.put(keyword, randomTime);
+						redisCacheService.saveSearchLog(keyword, randomTime);
 					}
-
-					searchLogRepository.saveAll(batch);
-					saveSearchLogBatch(keywordTimeMap);
 				}));
 			}
 
@@ -71,13 +53,5 @@ public class DummyDataConfig {
 
 			executor.shutdown();
 		};
-	}
-
-	public void saveSearchLogBatch(Map<String, Long> keywordTimeMap) {
-		for (Map.Entry<String, Long> entry : keywordTimeMap.entrySet()) {
-
-			redisCacheService.saveSearchLog(entry.getKey(), entry.getValue());
-
-		}
 	}
 }
