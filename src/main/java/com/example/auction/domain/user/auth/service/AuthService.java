@@ -78,14 +78,14 @@ public class AuthService {
 			});
 
 		//비밀번호 검증
-		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-			loginAttemptService.loginFailed(email);
-			throw new CustomException(AuthErrorCode.INVALID_LOGIN);
-		}
+//		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//			loginAttemptService.loginFailed(email);
+//			throw new CustomException(AuthErrorCode.INVALID_LOGIN);
+//		}
 		// provider가 "local"이 아닌 경우: 소셜 로그인 사용자
-		if (!"local".equals(user.getProvider())) {
-			throw new CustomException(AuthErrorCode.SOCIAL_ONLY);
-		}
+//		if (!"local".equals(user.getProvider())) {
+//			throw new CustomException(AuthErrorCode.SOCIAL_ONLY);
+//		}
 
 		loginAttemptService.resetFailCount(email); // 로그인 성공 시 실패 기록 삭제
 

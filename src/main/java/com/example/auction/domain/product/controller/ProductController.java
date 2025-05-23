@@ -70,7 +70,7 @@ public class ProductController {
 	public CommonResponse<ProductResponseDto> findProduct(@AuthenticationPrincipal CustomUserDetails userDetail,
 		@PathVariable Long id) {
 
-		return CommonResponse.ok(productService.findProduct(id));
+		return CommonResponse.ok(productService.findProduct(id, userDetail.getUser().getId()));
 	}
 
 	//검색 v1 (아무것도 하지 않은 api)

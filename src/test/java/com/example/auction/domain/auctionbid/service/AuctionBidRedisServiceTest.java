@@ -1,5 +1,6 @@
 package com.example.auction.domain.auctionbid.service;
 
+import static com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode.BID_PRICE_BELOW_HIGHEST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -86,7 +87,7 @@ public class AuctionBidRedisServiceTest {
 					auctionBidRedisService.trySaveHighestBid(productId, dto);
 					successCount.incrementAndGet();
 				} catch (CustomException e) {
-					if (e.getBaseCode() == ErrorCode.BID_PRICE_BELOW_HIGHEST) {
+					if (e.getBaseCode() == BID_PRICE_BELOW_HIGHEST) {
 						failCount.incrementAndGet();
 					} else {
 						throw e;

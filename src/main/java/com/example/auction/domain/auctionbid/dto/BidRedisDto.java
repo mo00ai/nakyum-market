@@ -2,13 +2,17 @@ package com.example.auction.domain.auctionbid.dto;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import com.example.auction.domain.auctionbid.dto.request.BidRequestDto;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BidRedisDto {
 
 	private Long productId;

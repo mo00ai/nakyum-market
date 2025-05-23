@@ -7,10 +7,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import java.util.Objects;
+import java.util.Set;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -30,9 +34,19 @@ public class RedisService {
 		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
+	public RedisConnection getRedisConnection(){
+		return Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection();
+	}
+
 	/**
 	 * 사용자가 필요한 set 메서드가 더 있다면 직접 만들어서 사용하세요
 	 */
+
+	// 키가 없으면 값을 설정하고 true 반환, 키가 이미 존재하면 아무 작업도 하지 않고 false 반환
+	public boolean setIfAbsent(String key, Object value,  Duration validityTime) {
+		return Boolean.TRUE.equals(
+            redisTemplate.opsForValue().setIfAbsent(key, value, validityTime));
+	}
 
 	// key, String
 	public void setKeyValue(String key, Object value) {
@@ -130,8 +144,24 @@ public class RedisService {
 		return redisTemplate.opsForValue().increment(key);
 	}
 
-	public void deleteKeyValue(String key) {
+
+	public void setProductCntExpire(String key){
+		// 현재 TTL 확인
+		long currentTtlSeconds = redisTemplate.getExpire(key);
+		// 10분보다 작으면 연장
+		if (currentTtlSeconds > 0 && currentTtlSeconds < 600) {
+			redisTemplate.expire(key, Duration.ofMinutes(10));
+		}
+	}
+	public Set<TypedTuple<Object>> getZSetReversData(String key){
+		return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
+	}
+
+	public void deleteRedisTemplateKeyValue(String key) {
 		redisTemplate.delete(key);
+	}
+	public void deleteStringRedisTemplateKeyValue(String key) {
+		stringRedisTemplate.delete(key);
 	}
 
 	//주어진 Lua 스크립트를 Redis에서 실행하고 결과를 Long으로 반환합니다.
