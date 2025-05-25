@@ -43,36 +43,36 @@ public class AuctionBidRedisService {
 	 */
 
 	//trySaveHightestBidV1
-	public void trySaveHighestBid(Long productId, BidRedisDto bidRedisDto) {
-		log.info(">> 입찰 시도 user={}, price={}", bidRedisDto.getUserId(), bidRedisDto.getBidPrice());
-
-		String highestKey = getHighestKey(productId);
-
-		BidRedisDto existDto = redisService.getZSetHighestBid(highestKey);
-
-		if (existDto == null) {
-			log.info(">> 최고 입찰 없음 → 저장");
-			redisService.addToZSetObject(highestKey, bidRedisDto, bidRedisDto.getBidPrice());
-			return;
-		}
-
-		if (existDto.getBidPrice() >= bidRedisDto.getBidPrice()) {
-			log.info(">> 현재 최고 입찰보다 낮음 → 예외 발생");
-			throw new CustomException(BID_PRICE_BELOW_HIGHEST);
-		}
-		log.info(">> 새로운 최고 입찰 → 저장");
-		redisService.addToZSetObject(highestKey, bidRedisDto, bidRedisDto.getBidPrice());
-	}
+	// public void trySaveHighestBid(Long productId, BidRedisDto bidRedisDto) {
+	// 	log.info(">> 입찰 시도 user={}, price={}", bidRedisDto.getUserId(), bidRedisDto.getBidPrice());
+	//
+	// 	String highestKey = getHighestKey(productId);
+	//
+	// 	BidRedisDto existDto = redisService.getZSetHighestBid(highestKey);
+	//
+	// 	if (existDto == null) {
+	// 		log.info(">> 최고 입찰 없음 → 저장");
+	// 		redisService.addToZSetObject(highestKey, bidRedisDto, bidRedisDto.getBidPrice());
+	// 		return;
+	// 	}
+	//
+	// 	if (existDto.getBidPrice() >= bidRedisDto.getBidPrice()) {
+	// 		log.info(">> 현재 최고 입찰보다 낮음 → 예외 발생");
+	// 		throw new CustomException(BID_PRICE_BELOW_HIGHEST);
+	// 	}
+	// 	log.info(">> 새로운 최고 입찰 → 저장");
+	// 	redisService.addToZSetObject(highestKey, bidRedisDto, bidRedisDto.getBidPrice());
+	// }
 
 	// trySaveHighestBidV2
-	// public void trySaveHighestBid(Long productId, BidRedisDto bidRedisDto) {
-	// 	String highestKey = getHighestKey(productId);
-	// 	String logKey = getLogKey(productId);
-	//
-	// 	String json = serializeBid(bidRedisDto); // 1. 직렬화
-	// 	saveHighestBid(highestKey, bidRedisDto.getBidPrice(), json); // 2. 조건부 저장
-	// 	redisService.addToZSet(logKey, json, System.currentTimeMillis()); // 3. 성공 로그 기록
-	// }
+	public void trySaveHighestBid(Long productId, BidRedisDto bidRedisDto) {
+		String highestKey = getHighestKey(productId);
+		String logKey = getLogKey(productId);
+
+		String json = serializeBid(bidRedisDto); // 1. 직렬화
+		saveHighestBid(highestKey, bidRedisDto.getBidPrice(), json); // 2. 조건부 저장
+		redisService.addToZSet(logKey, json, System.currentTimeMillis()); // 3. 성공 로그 기록
+	}
 
 	private String serializeBid(BidRedisDto dto) {
 		try {
