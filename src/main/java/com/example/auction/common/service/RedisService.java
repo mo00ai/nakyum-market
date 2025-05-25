@@ -8,17 +8,19 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import com.example.auction.domain.auctionbid.dto.BidRedisDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -26,11 +28,14 @@ public class RedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final RedisTemplate<String, String> stringRedisTemplate;
+	private final ObjectMapper objectMapper;
 
 	public RedisService(RedisTemplate<String, Object> redisTemplate,
-		RedisTemplate<String, String> stringRedisTemplate) {
+		RedisTemplate<String, String> stringRedisTemplate,
+		ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
 		this.stringRedisTemplate = stringRedisTemplate;
+		this.objectMapper = objectMapper;
 	}
 
 	public RedisConnection getRedisConnection() {
@@ -156,6 +161,18 @@ public class RedisService {
 		return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
 	}
 
+	public BidRedisDto getZSetHighestBid(String zsetKey) {
+		// ZREVRANGE는 점수가 높은 순으로 반환 (0, 0): 가장 높은 점수 1개
+		Set<Object> result = redisTemplate.opsForZSet().reverseRange(zsetKey, 0, 0);
+
+		if (result == null || result.isEmpty()) {
+			return null;
+		}
+
+		Object raw = result.iterator().next();
+		return objectMapper.convertValue(raw, BidRedisDto.class); // 최고 입찰 JSON 문자열 반환
+	}
+
 	public Set<ZSetOperations.TypedTuple<String>> getZSetRangeByScoreTuple(String key, Long min, Long max) {
 		return stringRedisTemplate.opsForZSet().rangeWithScores(key, min, max);
 	}
@@ -184,6 +201,10 @@ public class RedisService {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
 
+	public void addToZSetObject(String key, Object value, long score) {
+		redisTemplate.opsForZSet().add(key, value, score);
+	}
+
 	// ZSET 전체에 TTL 설정
 	public void expireKey(String key, Duration validityTime) {
 		redisTemplate.expire(key, validityTime);
@@ -191,6 +212,24 @@ public class RedisService {
 
 	public Long getExpire(String key) {
 		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+	}
+
+	public void setOpsForSet(String key,Long id){
+		redisTemplate.opsForSet().add(key, id);
+	}
+	public void removeOpsForSetALL(String key){
+		redisTemplate.delete(key);
+	}
+	public void removeOpsForSet(String key,Long id){
+		redisTemplate.opsForSet().remove(key, id);
+	}
+	// 값 존재 여부
+	public Boolean isOpsForSet(String key,Long id){
+		return redisTemplate.opsForSet().isMember(key,id);
+	}
+	//조회
+	public Set<Object> findOpsForSet(String key ){
+		 return redisTemplate.opsForSet().members(key);
 	}
 
 }

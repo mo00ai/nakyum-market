@@ -1,11 +1,13 @@
 package com.example.auction.domain.auctionbid.handler;
 
-import static com.example.auction.domain.user.exception.ErrorCode.*;
+import static com.example.auction.domain.user.exception.ErrorCode.NOT_FOUND_USER;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Component;
@@ -15,8 +17,9 @@ import com.example.auction.common.exception.ErrorCode;
 import com.example.auction.common.handler.RedisKeyEventHandler;
 import com.example.auction.common.service.RedisService;
 import com.example.auction.domain.auctionbid.dto.BidRedisDto;
-import com.example.auction.domain.auctionbid.repository.AuctionBidJdbcRepository;
+import com.example.auction.domain.auctionbid.exception.AuctionBidErrorCode;
 import com.example.auction.domain.product.service.ProductService;
+import com.example.auction.domain.test.repository.AuctionBidJdbcRepository;
 import com.example.auction.domain.user.entity.User;
 import com.example.auction.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,8 +27,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-
-import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -56,6 +57,9 @@ public class AuctionBidKeyEventHandler implements RedisKeyEventHandler {
 
 	public void setBatchInsert(String key) {
 		Set<TypedTuple<Object>> tuples = redisService.getZSetReversData(key);
+		if (tuples == null || tuples.isEmpty()) {
+			throw new CustomException(AuctionBidErrorCode.REDIS_LOGS_NOT_FOUND);
+		}
 		List<String> jsonList = tuples.stream().map(data -> (String)data.getValue()).toList();
 		List<BidRedisDto> dtoList = jsonList.stream().map(json -> {
 			try {
