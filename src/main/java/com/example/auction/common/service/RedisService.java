@@ -4,18 +4,17 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import java.util.Objects;
-import java.util.Set;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,7 @@ public class RedisService {
 		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-	public RedisConnection getRedisConnection(){
+	public RedisConnection getRedisConnection() {
 		return Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection();
 	}
 
@@ -43,9 +42,9 @@ public class RedisService {
 	 */
 
 	// 키가 없으면 값을 설정하고 true 반환, 키가 이미 존재하면 아무 작업도 하지 않고 false 반환
-	public boolean setIfAbsent(String key, Object value,  Duration validityTime) {
+	public boolean setIfAbsent(String key, Object value, Duration validityTime) {
 		return Boolean.TRUE.equals(
-            redisTemplate.opsForValue().setIfAbsent(key, value, validityTime));
+			redisTemplate.opsForValue().setIfAbsent(key, value, validityTime));
 	}
 
 	// key, String
@@ -75,10 +74,6 @@ public class RedisService {
 
 	public void setZSetValue(String key, String value, Long score) {
 		redisTemplate.opsForZSet().add(key, value, score);
-	}
-
-	public Set<Object> getZSetRangeByScore(String key, Long min, Long max) {
-		return redisTemplate.opsForZSet().rangeByScore(key, min, max);
 	}
 
 	public void setKeyList(String key, List<String> values, Duration ttl) {
@@ -117,6 +112,10 @@ public class RedisService {
 		return cached != null ? cached : Collections.emptyList();
 	}
 
+	public Set<Object> getZSetRangeByScore(String key, Long min, Long max) {
+		return redisTemplate.opsForZSet().rangeByScore(key, min, max);
+	}
+
 	// getKeys는 O(n)의 성능이므로 redis에 key가 천개만 넘어가도 scan 방식으로 변경해야 한다고함
 	public Set<String> scanKeys(String pattern) {
 		Set<String> keys = new HashSet<>();
@@ -144,8 +143,7 @@ public class RedisService {
 		return redisTemplate.opsForValue().increment(key);
 	}
 
-
-	public void setProductCntExpire(String key){
+	public void setProductCntExpire(String key) {
 		// 현재 TTL 확인
 		long currentTtlSeconds = redisTemplate.getExpire(key);
 		// 10분보다 작으면 연장
@@ -153,13 +151,19 @@ public class RedisService {
 			redisTemplate.expire(key, Duration.ofMinutes(10));
 		}
 	}
-	public Set<TypedTuple<Object>> getZSetReversData(String key){
+
+	public Set<TypedTuple<Object>> getZSetReversData(String key) {
 		return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
+	}
+
+	public Set<ZSetOperations.TypedTuple<String>> getZSetRangeByScoreTuple(String key, Long min, Long max) {
+		return stringRedisTemplate.opsForZSet().rangeWithScores(key, min, max);
 	}
 
 	public void deleteRedisTemplateKeyValue(String key) {
 		redisTemplate.delete(key);
 	}
+
 	public void deleteStringRedisTemplateKeyValue(String key) {
 		stringRedisTemplate.delete(key);
 	}

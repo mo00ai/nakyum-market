@@ -8,6 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import com.example.auction.common.service.RedisCacheService;
 
@@ -15,16 +17,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-// @Configuration
+@Configuration
 @RequiredArgsConstructor
 public class DummyCacheDataConfig {
 
 	private final RedisCacheService redisCacheService;
-	private static final int TOTAL = 1000000;
-	private static final int BATCH_SIZE = 1000;
+	private static final int TOTAL = 10000;
+	private static final int BATCH_SIZE = 500;
 	private static final int THREAD_COUNT = 10;
 
-	// @Bean
+	@Bean
 	public CommandLineRunner initCacheOnlySearchLogs() {
 		return args -> {
 			List<String> keywords = Arrays.asList("아이폰", "맥북", "자전거", "의자", "책상", "조명", "모니터", "키보드", "마우스", "카메라");

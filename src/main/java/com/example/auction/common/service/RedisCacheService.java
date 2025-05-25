@@ -24,7 +24,7 @@ public class RedisCacheService {
 
 	private final RedisService redisService;
 
-	private static final Duration SEARCH_LOG_TTL = Duration.ofMinutes(20);
+	private static final Duration SEARCH_LOG_TTL = Duration.ofMinutes(10);
 	private static final Duration TOP_KEYWORDS_TTL = Duration.ofMinutes(10);
 
 	// 검색기록 저장 (ZSET)
