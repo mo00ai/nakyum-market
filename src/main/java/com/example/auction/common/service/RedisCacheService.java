@@ -1,6 +1,8 @@
 package com.example.auction.common.service;
 
-import static com.example.auction.common.util.TimeRangeUtils.*;
+import static com.example.auction.common.util.TimeRangeUtils.TimeRange;
+import static com.example.auction.common.util.TimeRangeUtils.getCurrentBlockKey;
+import static com.example.auction.common.util.TimeRangeUtils.getPreviousTimeBlock;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -12,10 +14,10 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -27,7 +29,6 @@ public class RedisCacheService {
 	private static final Duration SEARCH_LOG_TTL = Duration.ofMinutes(10);
 	private static final Duration TOP_KEYWORDS_TTL = Duration.ofMinutes(10);
 
-	// 검색기록 저장 (ZSET)
 	public void saveSearchLog(String keyword, Long now) {
 
 		String blockKey = "search_logs:" + getCurrentBlockKey(now);
@@ -37,19 +38,18 @@ public class RedisCacheService {
 		redisService.expireKey(blockKey, SEARCH_LOG_TTL);
 	}
 
-	// 인기 검색어 계산 및 캐싱
 	public List<String> saveTopKeywords() {
 		long now = System.currentTimeMillis();
 		TimeRange range = getPreviousTimeBlock(now);
 
-		String zsetKey = "search_logs:" + getCurrentBlockKey(range.start);
-		String cacheKey = "top10:" + getCurrentBlockKey(now);  // 현재 시각 기준 캐시
+		String zSetKey = "search_logs:" + getCurrentBlockKey(range.start);
+		String cacheKey = "top10:" + getCurrentBlockKey(now);
 
-		Set<Object> logsByRange = redisService.getZSetRangeByScore(zsetKey, range.start, range.end);
+		Set<Object> logsByRange = redisService.getZSetRangeByScore(zSetKey, range.start, range.end);
 
 		Map<String, Long> keywordCounts = logsByRange.stream()
 			.map(Object::toString)
-			.map(val -> val.split(":")[0])  // keyword 추출
+			.map(val -> val.split(":")[0])
 			.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
 		List<String> topKeywords = keywordCounts.entrySet().stream()
@@ -63,7 +63,6 @@ public class RedisCacheService {
 		return topKeywords;
 	}
 
-	// 인기 검색어 조회 (캐시 miss 시 계산)
 	public synchronized List<String> getTopKeywords() {
 		long now = System.currentTimeMillis();
 		String cacheKey = "top10:" + getCurrentBlockKey(now);
