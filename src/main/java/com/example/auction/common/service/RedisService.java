@@ -231,6 +231,15 @@ public class RedisService {
 	public Boolean isOpsForSet(String key, Long id) {
 		return redisTemplate.opsForSet().isMember(key, id);
 	}
+	// Redis 에 키 존재 여부 확인
+	public boolean hasKey(String key) {
+		return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+	}
+	// Redis Set의 크기 확인
+	public long getSetSize(String key) {
+		Long size = redisTemplate.opsForSet().size(key);
+		return size != null ? size : 0;
+	}
 
 	//조회
 	public Set<Object> findOpsForSet(String key) {
