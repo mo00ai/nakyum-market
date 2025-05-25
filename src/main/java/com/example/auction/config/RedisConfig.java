@@ -1,6 +1,6 @@
 package com.example.auction.config;
 
-import static com.example.auction.common.constant.RedisConst.DEFAULT;
+import static com.example.auction.common.constant.RedisConst.*;
 
 import java.time.Duration;
 import java.util.HashMap;

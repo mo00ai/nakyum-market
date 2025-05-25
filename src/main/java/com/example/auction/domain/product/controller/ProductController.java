@@ -38,7 +38,7 @@ public class ProductController {
 
 	private final ProductService productService;
 
-	@PreAuthorize("hasRole('ADMIN')")
+	// @PreAuthorize("hasRole('ADMIN')")
 	@ImageValid
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public CommonResponse<ProductSaveResponseDto> saveProduct(@AuthenticationPrincipal CustomUserDetails userDetail,

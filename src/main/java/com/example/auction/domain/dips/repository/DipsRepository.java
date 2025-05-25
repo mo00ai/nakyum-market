@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DipsRepository extends JpaRepository<Dips, Long> {
 
-    List<Dips> findDipsByUserId(Long id);
+    List<Dips> findAllDipsByUserId(Long id);
 
     Optional<Dips> findByUserIdAndProductId(Long userId, Long productId);
 
@@ -22,8 +22,8 @@ public interface DipsRepository extends JpaRepository<Dips, Long> {
         );
     }
 
-    default List<Dips> findDipsByUserIdOrElseThrow(Long id) {
-        List<Dips> list = findDipsByUserId(id);
+    default List<Dips> findAllDipsByUserIdOrElseThrow(Long id) {
+        List<Dips> list = findAllDipsByUserId(id);
         if (list.isEmpty()) {
             throw new CustomException(NOT_FOUND_DIPS, NOT_FOUND_DIPS.getMessage());
         }

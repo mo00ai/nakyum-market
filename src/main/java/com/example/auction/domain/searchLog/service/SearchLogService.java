@@ -55,4 +55,10 @@ public class SearchLogService {
 
 	}
 
+	@Transactional
+	public void saveSearchLogs(List<SearchLog> logs) {
+
+		searchLogRepository.saveAll(logs);
+	}
+
 }
