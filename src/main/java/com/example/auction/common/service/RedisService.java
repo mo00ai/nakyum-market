@@ -152,6 +152,11 @@ public class RedisService {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
 
+	//ZSet기반 입찰 저장용 메서드
+	// public void addToZSetObject(String key, Object value, long score) {
+	// 	redisTemplate.opsForZSet().add(key, value, score);
+	// }
+
 	public void expireKey(String key, Duration validityTime) {
 		redisTemplate.expire(key, validityTime);
 	}
