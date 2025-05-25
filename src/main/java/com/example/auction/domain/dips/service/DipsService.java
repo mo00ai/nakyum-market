@@ -19,6 +19,7 @@ import com.example.auction.domain.user.repository.UserRepository;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -36,69 +37,133 @@ public class DipsService {
     private final int MAX_COUNT = 5;
     private final int COUNT_TIME = 5;
     private final int LOCK_TIME = 10;
+    private final String LOCK_KEY = "dips:lock:";
+    private final String LIKE_KEY = "dips:like:";
+    private final String COUNT_KEY = "dips:count:";
+    private final String DB_LIKE_KEY = "dips:like:db:";
 
     @Transactional
     public boolean save(UserDetails userDetails, Long productId) {
         User user = findByUserOrNotFoundThrow(userDetails.getUsername());
         // 유저 별 고유 ID
-        String lockKey = "dips:lock:" + user.getId();
-        String dipsKey = "dips:like:" + user.getId();
-        String countKey = "dips:count" + user.getId();
+        String lockKey = LOCK_KEY + user.getId();
+        String dipsKey = LIKE_KEY + user.getId();
+        String countKey = COUNT_KEY + user.getId();
+        String dbLikeKey = DB_LIKE_KEY + user.getId(); // db 에서 가져온 찜 체크용
+
         // DB 락 체크
         if (redisService.getKeyValue(lockKey) != null) {
             throw new CustomException(DB_LOCK_CONFLICT, DB_LOCK_CONFLICT.getMessage());
         }
 
-        Product product = productRepository.findById(productId).orElseThrow(() ->
+        productRepository.findById(productId).orElseThrow(() ->
             new CustomException(PRODUCT_NOT_FOUND));
 
-        boolean isClick = redisService.isOpsForSet(dipsKey, product.getId());
+        Long userId = user.getId();
 
-        // 첫 클릭
-        Long count = redisService.getKeyLongValue(countKey);
-        if (count == null) {
-            redisService.setKeyValue(countKey, 1L, Duration.ofMinutes(COUNT_TIME));
-        } else {
-            count = redisService.incrementValue(countKey); // count + 1
-        }
+        boolean isClick = redisService.isOpsForSet(dipsKey, productId);
 
-        // 짧은 시간 내 5번 이상 클릭 시 DB 락
-        if (count != null && count >= MAX_COUNT) {
-            redisService.setKeyValue(lockKey, user.getId(), Duration.ofMinutes(LOCK_TIME));
+        setRock(countKey, lockKey, userId);
+
+        // 로그인하고 첫 클릭이면 db에서 데이터 가져옴
+        if (!redisService.hasKey(dipsKey) || redisService.getSetSize(dipsKey) == 0) {
+            if (firstSignIn(userId, dipsKey, dbLikeKey, productId)) return false; // 첫 클릭이 이미 db에 있던 상품이면
         }
 
         if (isClick) {
-            redisService.removeOpsForSet(dipsKey, product.getId());
+            redisService.removeOpsForSet(dipsKey, productId);
+            // 원래 DB에 있던 찜이라면 DB 에서도 삭제
+            if (redisService.isOpsForSet(dbLikeKey, productId)) {
+                Dips dips = dipsRepository.findByUserIdAndProductIdOrElseThrow(userId, productId);
+                dipsRepository.delete(dips);
+                redisService.removeOpsForSet(dbLikeKey, productId); // 체크용 레디스 삭제
+            }
         } else {
-            redisService.setOpsForSet(dipsKey, product.getId());
+            redisService.setOpsForSet(dipsKey, productId);
         }
         return !isClick;
     }
+
+    public void setRock(String countKey, String lockKey, Long userId) {
+        // 상품 첫 클릭
+        Long count = redisService.getKeyLongValue(countKey);
+        if (count == null) {
+            redisService.setKeyValue(countKey, 1L, Duration.ofSeconds(COUNT_TIME));
+        } else {
+            count = redisService.incrementValue(countKey); // count + 1
+        }
+        // 짧은 시간 내 5번 이상 클릭 시 DB 락
+        if (count != null && count >= MAX_COUNT) {
+            redisService.setKeyValue(lockKey, userId, Duration.ofSeconds(LOCK_TIME));
+        }
+    }
+
+    /**
+     *  첫 로그인일 때 동작하는 로직 db 에서 가져와서 redis 에 반영하고 만약 첫 클릭이 db에 있던 값이면 db 에서 삭제함
+     * @param userId
+     * @param dipsKey
+     * @param dbLikeKey
+     * @param productId
+     * @return true 면 db 에서 삭제 false 면 정상
+     */
+    private boolean firstSignIn(Long userId, String dipsKey, String dbLikeKey, Long productId) {
+        for (Dips dipsData : dipsRepository.findAllDipsByUserId(userId)) {
+            Long pid = dipsData.getProduct().getId();
+
+            if (productId.equals(pid)) {
+                dipsRepository.delete(dipsData);
+                return true;
+            }
+            redisService.setOpsForSet(dipsKey, pid);
+            redisService.setOpsForSet(dbLikeKey, pid);
+        }
+        return false;
+    }
+
 
     @Transactional
     public void removeRedis(CustomUserDetails userDetail) {
         User user = findByUserOrNotFoundThrow(userDetail.getUsername());
 
-        String dipsKey = "dips:like:" + user.getId();
-        Set<Object> dates = redisService.findOpsForSet(dipsKey);
+        String dipsKey = LIKE_KEY + user.getId();
+        String dbLikeKey = DB_LIKE_KEY + user.getId();
 
-        List<Product> productList = dates.stream()
-            .map(data -> ((Integer) data).longValue()) // Integer → Long 변환
-            .map(productId -> productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND)))
+        // Redis 에서 찜 목록 조회
+        Set<Long> allDips = redisService.findOpsForSet(dipsKey).stream()
+            .map(data -> ((Integer) data).longValue())
+            .collect(Collectors.toSet());
+
+        // 이미 db에 저장된 값
+        Set<Long> dbDips = redisService.findOpsForSet(dbLikeKey).stream()
+            .map(data -> ((Integer) data).longValue())
+            .collect(Collectors.toSet());
+
+        // 기존 DB에 없던 새 찜만 저장
+        allDips.removeAll(dbDips);
+
+        // 새 찜 상품 ID 목록으로 한 번에 Product 조회 (IN 쿼리)
+        List<Product> productList = productRepository.findAllById(allDips);
+
+        // 일부 상품이 삭제되었을 경우
+        if (productList.size() != allDips.size()) {
+            throw new CustomException(PRODUCT_NOT_FOUND);
+        }
+
+        // Dips 저장
+        List<Dips> dipsList = productList.stream()
+            .map(product -> Dips.of(user, product))
             .toList();
-        List<Dips> dipsList = productList.stream().map(product->Dips.of(user,product)).toList();
         dipsRepository.saveAll(dipsList);
 
-
+        // Redis 데이터 제거
         redisService.removeOpsForSetALL(dipsKey);
+        redisService.removeOpsForSetALL(dbLikeKey);
     }
-
 
     public List<ProductResponseDto> findDips(UserDetails userDetails) {
         User user = findByUserOrNotFoundThrow(userDetails.getUsername());
 
-        String dipsKey = "dips:like:" + user.getId();
+        String dipsKey = LIKE_KEY + user.getId();
         Set<Object> dates = redisService.findOpsForSet(dipsKey);
 
         if (dates == null || dates.isEmpty()) {
@@ -117,7 +182,7 @@ public class DipsService {
             .map(product -> ProductResponseDto.from(
                     product.getImage().getUploadFileName(),
                     product,
-                    redisService.getKeyLongValue("product:count:" + product.getId())
+                    redisService.getKeyLongValue(COUNT_KEY + product.getId())
                 )
             ).toList();
     }
