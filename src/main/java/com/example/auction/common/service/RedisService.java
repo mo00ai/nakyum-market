@@ -8,19 +8,20 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import com.example.auction.domain.auctionbid.dto.BidRedisDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -81,10 +82,6 @@ public class RedisService {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
 
-	public Set<Object> getZSetRangeByScore(String key, Long min, Long max) {
-		return redisTemplate.opsForZSet().rangeByScore(key, min, max);
-	}
-
 	public void setKeyList(String key, List<String> values, Duration ttl) {
 		stringRedisTemplate.opsForList().rightPushAll(key, values);
 		stringRedisTemplate.expire(key, ttl);
@@ -119,6 +116,10 @@ public class RedisService {
 	public List<String> getKeyStrings(String key) {
 		List<String> cached = stringRedisTemplate.opsForList().range(key, 0, -1);
 		return cached != null ? cached : Collections.emptyList();
+	}
+
+	public Set<Object> getZSetRangeByScore(String key, Long min, Long max) {
+		return redisTemplate.opsForZSet().rangeByScore(key, min, max);
 	}
 
 	// getKeys는 O(n)의 성능이므로 redis에 key가 천개만 넘어가도 scan 방식으로 변경해야 한다고함
@@ -173,6 +174,10 @@ public class RedisService {
 		return objectMapper.convertValue(raw, BidRedisDto.class); // 최고 입찰 JSON 문자열 반환
 	}
 
+	public Set<ZSetOperations.TypedTuple<String>> getZSetRangeByScoreTuple(String key, Long min, Long max) {
+		return stringRedisTemplate.opsForZSet().rangeWithScores(key, min, max);
+	}
+
 	public void deleteRedisTemplateKeyValue(String key) {
 		redisTemplate.delete(key);
 	}
@@ -210,18 +215,21 @@ public class RedisService {
 		return redisTemplate.getExpire(key, TimeUnit.SECONDS);
 	}
 
-	public void setOpsForSet(String key,Long id){
+	public void setOpsForSet(String key, Long id) {
 		redisTemplate.opsForSet().add(key, id);
 	}
-	public void removeOpsForSetALL(String key){
+
+	public void removeOpsForSetALL(String key) {
 		redisTemplate.delete(key);
 	}
-	public void removeOpsForSet(String key,Long id){
+
+	public void removeOpsForSet(String key, Long id) {
 		redisTemplate.opsForSet().remove(key, id);
 	}
+
 	// 값 존재 여부
-	public Boolean isOpsForSet(String key,Long id){
-		return redisTemplate.opsForSet().isMember(key,id);
+	public Boolean isOpsForSet(String key, Long id) {
+		return redisTemplate.opsForSet().isMember(key, id);
 	}
 	// Redis 에 키 존재 여부 확인
 	public boolean hasKey(String key) {
@@ -232,9 +240,10 @@ public class RedisService {
 		Long size = redisTemplate.opsForSet().size(key);
 		return size != null ? size : 0;
 	}
+
 	//조회
-	public Set<Object> findOpsForSet(String key ){
-		 return redisTemplate.opsForSet().members(key);
+	public Set<Object> findOpsForSet(String key) {
+		return redisTemplate.opsForSet().members(key);
 	}
 
 }

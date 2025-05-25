@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DummyCacheDataConfig {
 
 	private final RedisCacheService redisCacheService;
-	private static final int TOTAL = 1000000;
-	private static final int BATCH_SIZE = 1000;
+	private static final int TOTAL = 10000;
+	private static final int BATCH_SIZE = 500;
 	private static final int THREAD_COUNT = 10;
 
 	// @Bean
