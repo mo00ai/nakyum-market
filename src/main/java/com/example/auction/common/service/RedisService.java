@@ -20,17 +20,22 @@ import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Slf4j
 @Service
 public class RedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final RedisTemplate<String, String> stringRedisTemplate;
+	private final ObjectMapper objectMapper;
 
 	public RedisService(RedisTemplate<String, Object> redisTemplate,
-		RedisTemplate<String, String> stringRedisTemplate) {
+		RedisTemplate<String, String> stringRedisTemplate,
+		ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
 		this.stringRedisTemplate = stringRedisTemplate;
+		this.objectMapper = objectMapper;
 	}
 
 	public RedisConnection getRedisConnection() {
@@ -152,11 +157,6 @@ public class RedisService {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
 
-	//ZSet기반 입찰 저장용 메서드
-	// public void addToZSetObject(String key, Object value, long score) {
-	// 	redisTemplate.opsForZSet().add(key, value, score);
-	// }
-
 	public void expireKey(String key, Duration validityTime) {
 		redisTemplate.expire(key, validityTime);
 	}
@@ -193,5 +193,23 @@ public class RedisService {
 	public Set<Object> findOpsForSet(String key) {
 		return redisTemplate.opsForSet().members(key);
 	}
+
+	//Zset기반 입찰 조회용 메서드
+	// public BidRedisDto getZSetHighestBid(String zsetKey) {
+	// 	// ZREVRANGE는 점수가 높은 순으로 반환 (0, 0): 가장 높은 점수 1개
+	// 	Set<Object> result = redisTemplate.opsForZSet().reverseRange(zsetKey, 0, 0);
+	//
+	// 	if (result == null || result.isEmpty()) {
+	// 		return null;
+	// 	}
+	//
+	// 	Object raw = result.iterator().next();
+	// 	return objectMapper.convertValue(raw, BidRedisDto.class); // 최고 입찰 JSON 문자열 반환
+	// }
+
+	//ZSet기반 입찰 저장용 메서드
+	// public void addToZSetObject(String key, Object value, long score) {
+	// 	redisTemplate.opsForZSet().add(key, value, score);
+	// }
 
 }
