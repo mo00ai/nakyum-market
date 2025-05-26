@@ -84,7 +84,7 @@ public class AuctionBidRedisServiceTest {
 					auctionBidRedisService.trySaveHighestBid(productId, dto);
 					successCount.incrementAndGet();
 				} catch (CustomException e) {
-					if (e.getBaseCode() == BID_PRICE_BELOW_HIGHEST) {
+					if (e.getBaseCode().equals(BID_PRICE_BELOW_HIGHEST)) {
 						failCount.incrementAndGet();
 					} else {
 						throw e;
@@ -97,8 +97,7 @@ public class AuctionBidRedisServiceTest {
 		latch.await();
 
 		// then
-		assertThat(failCount.get()).isEqualTo(99);
 		assertThat(successCount.get()).isEqualTo(1);
-
+		assertThat(failCount.get()).isEqualTo(99);
 	}
 }
