@@ -28,14 +28,16 @@ public class RedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final RedisTemplate<String, String> stringRedisTemplate;
-	private final ObjectMapper objectMapper;
+	// ZSet기반 입찰 관련 DI
+	// private final ObjectMapper objectMapper;
 
 	public RedisService(RedisTemplate<String, Object> redisTemplate,
 		RedisTemplate<String, String> stringRedisTemplate,
 		ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
 		this.stringRedisTemplate = stringRedisTemplate;
-		this.objectMapper = objectMapper;
+		// ZSet기반 입찰 관련 DI
+		// this.objectMapper = objectMapper;
 	}
 
 	public RedisConnection getRedisConnection() {
@@ -194,7 +196,7 @@ public class RedisService {
 		return redisTemplate.opsForSet().members(key);
 	}
 
-	//Zset기반 입찰 조회용 메서드
+	// Zset기반 입찰 조회용 메서드
 	// public BidRedisDto getZSetHighestBid(String zsetKey) {
 	// 	// ZREVRANGE는 점수가 높은 순으로 반환 (0, 0): 가장 높은 점수 1개
 	// 	Set<Object> result = redisTemplate.opsForZSet().reverseRange(zsetKey, 0, 0);
@@ -207,7 +209,7 @@ public class RedisService {
 	// 	return objectMapper.convertValue(raw, BidRedisDto.class); // 최고 입찰 JSON 문자열 반환
 	// }
 
-	//ZSet기반 입찰 저장용 메서드
+	// ZSet기반 입찰 저장용 메서드
 	// public void addToZSetObject(String key, Object value, long score) {
 	// 	redisTemplate.opsForZSet().add(key, value, score);
 	// }
