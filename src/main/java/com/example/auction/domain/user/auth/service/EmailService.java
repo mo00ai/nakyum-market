@@ -9,6 +9,7 @@ import jakarta.mail.internet.MimeMessage;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class EmailService {
 	private final UserRepository userRepository;
 
 	private static final int MAX_ATTEMPTS = 3;
+
+	@Value("${PERSONAL_EMAIL}")
+	String ourEmail;
 
 	//인증번호 전송
 	public void sendCode(String email) {
@@ -57,7 +61,7 @@ public class EmailService {
 			helper.setTo(email);
 			helper.setSubject("나겸상가 회원가입을 위한 인증번호입니다.");
 			helper.setText("인증번호 : " + code, false);
-			helper.setFrom(new InternetAddress("msmskk379@gmail.com", "나겸상가"));
+			helper.setFrom(new InternetAddress(ourEmail, "나겸상가"));
 
 			mailSender.send(message);
 		} catch (MessagingException | UnsupportedEncodingException ex) {
