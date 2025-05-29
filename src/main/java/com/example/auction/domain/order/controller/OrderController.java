@@ -29,7 +29,7 @@ public class OrderController {
 
 	@PreAuthorize("hasRole('USER')")
 	@PostMapping
-	public CommonResponse<OrderResponseDto> orderSave(
+	public CommonResponse<OrderResponseDto> saveOrder(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@Valid @RequestBody OrderRequestDto requestDto) {
 
